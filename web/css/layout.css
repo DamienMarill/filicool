@@ -1,0 +1,184 @@
+/**
+ * 🍭 Fililico - Layout Styles
+ * Structure de la page principale
+ */
+
+/* ═══════════════════════════════════════════════════════════════
+ * LAYOUT PRINCIPAL
+ * ═══════════════════════════════════════════════════════════════ */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  background: var(--frosted-glass);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.app-logo img {
+  height: 48px;
+  width: auto;
+}
+
+.app-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
+  background: linear-gradient(135deg, var(--bubblegum-pink) 0%, var(--magic-berry) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.app-mascot {
+  margin-left: var(--space-4);
+}
+
+.app-main {
+  flex: 1;
+  padding: var(--space-6);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * GRID LAYOUT
+ * ═══════════════════════════════════════════════════════════════ */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: var(--space-6);
+  max-width: var(--container-width);
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * ZONES
+ * ═══════════════════════════════════════════════════════════════ */
+.zone-files {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.zone-config {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
+  color: var(--deep-grape);
+  margin-bottom: var(--space-3);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * FOOTER
+ * ═══════════════════════════════════════════════════════════════ */
+.app-footer {
+  padding: var(--space-4);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--magic-berry);
+  background: var(--frosted-glass);
+  backdrop-filter: blur(10px);
+}
+
+.app-footer a {
+  color: var(--bubblegum-pink);
+  text-decoration: none;
+}
+
+.app-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * ANIMATIONS GLOBALES
+ * ═══════════════════════════════════════════════════════════════ */
+.fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.4s var(--transition-bounce) forwards;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * PROGRESS BAR
+ * ═══════════════════════════════════════════════════════════════ */
+.progress-bar {
+  height: 8px;
+  background: var(--magic-berry-light);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--bubblegum-pink) 0%, var(--magic-berry) 100%);
+  border-radius: var(--radius-pill);
+  transition: width var(--transition-normal) ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * HIDDEN UTILITY
+ * ═══════════════════════════════════════════════════════════════ */
+.hidden {
+  display: none !important;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

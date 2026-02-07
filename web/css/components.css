@@ -1,0 +1,404 @@
+/**
+ * 🍭 Fililico - Components (Squishy Style)
+ * Composants UI avec effet gummy et glassmorphism
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap');
+
+/* ═══════════════════════════════════════════════════════════════
+ * RESET & BASE
+ * ═══════════════════════════════════════════════════════════════ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  color: var(--deep-grape);
+  background: linear-gradient(135deg, var(--cotton-cloud) 0%, var(--cotton-cloud-alt) 50%, #e9d5ff 100%);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * BOUTONS - Effet "Gummy"
+ * ═══════════════════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border: none;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-normal) var(--transition-bounce);
+  text-decoration: none;
+  user-select: none;
+}
+
+.btn:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn:active {
+  transform: scale(var(--squish-scale));
+}
+
+/* Primary - Bubblegum Pink */
+.btn-primary {
+  background: linear-gradient(135deg, var(--bubblegum-pink) 0%, var(--magic-berry) 100%);
+  color: white;
+  box-shadow: var(--shadow-pink);
+}
+
+.btn-primary:hover {
+  box-shadow: var(--shadow-pink-hover);
+}
+
+/* Secondary - Magic Berry */
+.btn-secondary {
+  background: linear-gradient(135deg, var(--magic-berry) 0%, var(--fizz-cyan) 100%);
+  color: white;
+  box-shadow: var(--shadow-purple);
+}
+
+.btn-secondary:hover {
+  box-shadow: var(--shadow-purple-hover);
+}
+
+/* Ghost - Transparent avec bordure */
+.btn-ghost {
+  background: var(--frosted-glass);
+  color: var(--deep-grape);
+  border: 2px solid var(--bubblegum-pink-light);
+  backdrop-filter: blur(10px);
+}
+
+.btn-ghost:hover {
+  background: var(--bubblegum-pink-light);
+  color: white;
+}
+
+/* Large */
+.btn-lg {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--font-size-lg);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * CARDS - Glassmorphism
+ * ═══════════════════════════════════════════════════════════════ */
+.card {
+  background: var(--frosted-glass);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-card);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-card);
+}
+
+.card-pink {
+  background: var(--frosted-glass-pink);
+  border-color: var(--bubblegum-pink-light);
+}
+
+.card-purple {
+  background: var(--frosted-glass-purple);
+  border-color: var(--magic-berry-light);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * INPUTS
+ * ═══════════════════════════════════════════════════════════════ */
+.input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--magic-berry-light);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  color: var(--deep-grape);
+  background: var(--frosted-glass);
+  backdrop-filter: blur(10px);
+  transition: all var(--transition-normal) ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--bubblegum-pink);
+  box-shadow: 0 0 0 4px rgba(244, 114, 182, 0.2);
+}
+
+.input::placeholder {
+  color: var(--magic-berry-light);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * DROP ZONE
+ * ═══════════════════════════════════════════════════════════════ */
+.drop-zone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: 200px;
+  padding: var(--space-8);
+  border: 3px dashed var(--magic-berry-light);
+  border-radius: var(--radius-xl);
+  background: var(--frosted-glass);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: all var(--transition-normal) var(--transition-bounce);
+}
+
+.drop-zone:hover {
+  border-color: var(--bubblegum-pink);
+  background: var(--frosted-glass-pink);
+  transform: scale(1.01);
+}
+
+.drop-zone.drag-over {
+  border-color: var(--minty-fresh);
+  background: rgba(52, 211, 153, 0.1);
+  border-style: solid;
+  transform: scale(1.02);
+}
+
+.drop-zone-icon {
+  font-size: 3rem;
+}
+
+.drop-zone-text {
+  font-size: var(--font-size-lg);
+  color: var(--deep-grape);
+  text-align: center;
+}
+
+.drop-zone-hint {
+  font-size: var(--font-size-sm);
+  color: var(--magic-berry);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * FILE LIST
+ * ═══════════════════════════════════════════════════════════════ */
+.file-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--frosted-glass);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--magic-berry-light);
+}
+
+.file-item-icon {
+  font-size: 1.5rem;
+}
+
+.file-item-name {
+  flex: 1;
+  font-weight: 600;
+  color: var(--deep-grape);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-item-size {
+  font-size: var(--font-size-sm);
+  color: var(--magic-berry);
+}
+
+.file-item-remove {
+  background: none;
+  border: none;
+  color: var(--bubblegum-pink);
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: transform var(--transition-fast);
+}
+
+.file-item-remove:hover {
+  transform: scale(1.2);
+  color: var(--bubblegum-pink-dark);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * PREVIEW
+ * ═══════════════════════════════════════════════════════════════ */
+.preview-container {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--frosted-glass);
+  backdrop-filter: blur(20px);
+  border: 2px solid var(--magic-berry-light);
+}
+
+.preview-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.preview-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: 300px;
+  color: var(--magic-berry);
+}
+
+.preview-placeholder-icon {
+  font-size: 4rem;
+  opacity: 0.5;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * RESULTS
+ * ═══════════════════════════════════════════════════════════════ */
+.result-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+}
+
+.result-item.success {
+  background: rgba(52, 211, 153, 0.15);
+  border: 1px solid var(--minty-fresh);
+}
+
+.result-item.error {
+  background: rgba(244, 114, 182, 0.15);
+  border: 1px solid var(--bubblegum-pink);
+}
+
+.result-icon {
+  font-size: 1.5rem;
+}
+
+.result-success .result-icon {
+  color: var(--minty-fresh);
+}
+
+.result-error .result-icon {
+  color: var(--bubblegum-pink);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * MASCOT STATES
+ * ═══════════════════════════════════════════════════════════════ */
+.mascot {
+  width: 120px;
+  height: 120px;
+  transition: all var(--transition-normal) var(--transition-bounce);
+}
+
+.mascot.idle {
+  animation: mascot-breathe 3s ease-in-out infinite;
+}
+
+.mascot.drag {
+  animation: mascot-bounce 0.5s ease-in-out infinite;
+}
+
+.mascot.processing {
+  animation: mascot-shake 0.3s ease-in-out infinite;
+}
+
+.mascot.done {
+  animation: mascot-celebrate 0.6s ease-in-out;
+}
+
+@keyframes mascot-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+@keyframes mascot-bounce {
+  0%, 100% { transform: translateY(0) scale(1.05); }
+  50% { transform: translateY(-10px) scale(1.1); }
+}
+
+@keyframes mascot-shake {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@keyframes mascot-celebrate {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.2) rotate(-5deg); }
+  50% { transform: scale(1.1) rotate(5deg); }
+  75% { transform: scale(1.15) rotate(-3deg); }
+  100% { transform: scale(1); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * LOADING SPINNER
+ * ═══════════════════════════════════════════════════════════════ */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--magic-berry-light);
+  border-top-color: var(--bubblegum-pink);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * TYPOGRAPHY
+ * ═══════════════════════════════════════════════════════════════ */
+.title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--deep-grape);
+  line-height: 1.2;
+}
+
+.title-xl {
+  font-size: var(--font-size-4xl);
+  background: linear-gradient(135deg, var(--bubblegum-pink) 0%, var(--magic-berry) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--magic-berry);
+  font-weight: 600;
+}
+
+.label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--deep-grape);
+  margin-bottom: var(--space-2);
+}
