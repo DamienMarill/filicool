@@ -5,7 +5,7 @@ Le filigrane est "burnt-in" dans les pixels, impossible à supprimer sans altér
 """
 
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Callable
 import io
 import tempfile
 import os
@@ -34,6 +34,7 @@ class PDFProcessor:
         text_color: Tuple[int, int, int] = (0, 0, 0),
         outline_color: Tuple[int, int, int] = (255, 255, 255),
         dpi: int = 150,  # Résolution de conversion (équilibre qualité/taille)
+        progress_callback: Optional[Callable[[int, int], None]] = None,  # callback(current, total)
     ):
         """Initialise le processeur PDF avec le renderer partagé."""
         self.renderer = WatermarkRenderer(
@@ -50,6 +51,7 @@ class PDFProcessor:
             outline_color=outline_color,
         )
         self.dpi = dpi
+        self.progress_callback = progress_callback
 
     @classmethod
     def is_supported(cls, file_path: Path) -> bool:
@@ -156,8 +158,12 @@ class PDFProcessor:
 
         # Appliquer le filigrane sur chaque page
         watermarked_pages = []
+        total_pages = len(pages)
         for i, page in enumerate(pages):
-            print(f"  🍭 Filigranage page {i + 1}/{len(pages)}...")
+            print(f"  🍭 Filigranage page {i + 1}/{total_pages}...")
+            # Appeler le callback de progression si défini
+            if self.progress_callback:
+                self.progress_callback(i + 1, total_pages)
             watermarked = self.renderer.apply_watermark(page)
             watermarked_pages.append(watermarked)
 

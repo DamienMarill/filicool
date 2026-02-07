@@ -241,6 +241,35 @@ body {
   color: var(--bubblegum-pink-dark);
 }
 
+/* File status icon */
+.file-item-status {
+  font-size: 1rem;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* File item states */
+.file-item.processing {
+  background: rgba(167, 139, 250, 0.15);
+  border-color: var(--magic-berry);
+  animation: pulse-processing 1.5s ease-in-out infinite;
+}
+
+.file-item.success {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: var(--minty-fresh);
+}
+
+.file-item.error {
+  background: rgba(244, 114, 182, 0.15);
+  border-color: var(--bubblegum-pink);
+}
+
+@keyframes pulse-processing {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
 /* ═══════════════════════════════════════════════════════════════
  * PREVIEW
  * ═══════════════════════════════════════════════════════════════ */

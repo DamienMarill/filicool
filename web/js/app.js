@@ -5,7 +5,7 @@
 
 // State
 const state = {
-  files: [], // Maintenant contient des objets {path, name, size, type}
+  files: [], // Contient {path, name, size, type, status: 'pending'|'processing'|'success'|'error', progress: string}
   selectedFileIndex: null,
   isProcessing: false,
   mascotState: "idle",
@@ -157,16 +157,31 @@ async function handleFilesFromPython(filePaths) {
     return;
   }
 
-  // Créer des objets fichier avec les chemins complets
-  const newFiles = filePaths.map((path) => {
-    const name = path.split(/[\\/]/).pop(); // Extraire le nom du fichier
-    return {
+  // Créer des objets fichier avec les chemins complets et récupérer les tailles
+  const newFiles = [];
+  for (const path of filePaths) {
+    const name = path.split(/[\\/]/).pop();
+    let size = 0;
+    
+    // Récupérer la taille du fichier via Python
+    if (typeof eel !== "undefined") {
+      try {
+        const info = await eel.get_file_info(path)();
+        size = info.size || 0;
+      } catch (e) {
+        console.warn("Could not get file info:", e);
+      }
+    }
+    
+    newFiles.push({
       path: path,
       name: name,
-      size: 0, // On ne connaît pas la taille, pas grave
+      size: size,
       type: getFileType(name),
-    };
-  });
+      status: "pending", // pending, processing, success, error
+      progress: "",
+    });
+  }
 
   // Add to state
   state.files.push(...newFiles);
@@ -253,6 +268,19 @@ async function handleFiles(files) {
   );
 }
 
+/**
+ * Icônes de statut pour la progression
+ */
+function getStatusIcon(status) {
+  const icons = {
+    pending: "⏳",
+    processing: "⚙️",
+    success: "✅",
+    error: "❌",
+  };
+  return icons[status] || "📄";
+}
+
 function updateFileList() {
   const fileList = elements.fileList;
 
@@ -266,14 +294,25 @@ function updateFileList() {
 
   state.files.forEach((file, index) => {
     const item = document.createElement("div");
-    item.className = "file-item slide-in";
-    item.style.animationDelay = `${index * 50}ms`;
+    // Désactiver l'animation pendant le traitement pour éviter le clignotement
+    const animClass = state.isProcessing ? "" : "slide-in";
+    item.className = `file-item ${animClass} ${file.status || "pending"}`;
+    if (!state.isProcessing) {
+      item.style.animationDelay = `${index * 50}ms`;
+    }
+    item.dataset.index = index;
+    
+    // Pendant le traitement, on affiche le statut au lieu du bouton supprimer
+    const isProcessing = state.isProcessing;
+    const statusIcon = getStatusIcon(file.status);
+    const progressInfo = file.progress ? ` - ${file.progress}` : "";
 
     item.innerHTML = `
+      <span class="file-item-status" title="${file.status}">${statusIcon}</span>
       <span class="file-item-icon">${getFileIcon(file.name)}</span>
-      <span class="file-item-name">${file.name}</span>
+      <span class="file-item-name">${file.name}${progressInfo}</span>
       <span class="file-item-size">${formatFileSize(file.size)}</span>
-      <button class="file-item-remove" data-index="${index}" title="Retirer">✕</button>
+      ${!isProcessing ? `<button class="file-item-remove" data-index="${index}" title="Retirer">✕</button>` : ""}
     `;
 
     // Click to select
@@ -411,9 +450,16 @@ async function processFiles() {
   state.isProcessing = true;
   setMascotState("processing");
   updateProcessButton();
+  
+  // Réinitialiser les statuts
+  state.files.forEach(f => {
+    f.status = "pending";
+    f.progress = "";
+  });
+  updateFileList();
 
-  // Show progress
-  elements.progressSection.classList.remove("hidden");
+  // Masquer les résultats précédents (la progression est maintenant dans la liste des fichiers)
+  elements.progressSection.classList.add("hidden");
   elements.resultsSection.classList.add("hidden");
   elements.resultsList.innerHTML = "";
 
@@ -422,11 +468,11 @@ async function processFiles() {
 
   for (let i = 0; i < total; i++) {
     const file = state.files[i];
-    const progress = ((i + 1) / total) * 100;
 
-    // Update progress
-    elements.progressFill.style.width = `${progress}%`;
-    elements.progressText.textContent = `Traitement de ${file.name}... (${i + 1}/${total})`;
+    // Marquer le fichier en cours de traitement
+    file.status = "processing";
+    file.progress = "En cours...";
+    updateFileList();
 
     try {
       // Call Eel function (or simulate)
@@ -449,8 +495,18 @@ async function processFiles() {
         };
       }
 
+      // Mettre à jour le statut du fichier
+      file.status = result.success ? "success" : "error";
+      file.progress = result.success ? "Terminé" : result.error || "Erreur";
+      updateFileList();
+      
       results.push(result);
     } catch (error) {
+      // Erreur: mettre à jour le statut
+      file.status = "error";
+      file.progress = error.message || "Erreur inconnue";
+      updateFileList();
+      
       results.push({
         success: false,
         input: file.name,
@@ -462,6 +518,7 @@ async function processFiles() {
   // Complete
   state.isProcessing = false;
   setMascotState("done");
+  updateFileList(); // Rafraîchir une dernière fois pour montrer les boutons de suppression
   showResults(results);
   updateProcessButton();
 
@@ -640,6 +697,23 @@ function initOutputFolderPicker() {
 
 function initProcessButton() {
   elements.processBtn.addEventListener("click", processFiles);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EEL EXPOSED FUNCTIONS (called from Python)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Callback appelé par Python pendant le traitement PDF pour mettre à jour la progression
+ */
+eel.expose(onPdfProgress);
+function onPdfProgress(filePath, currentPage, totalPages) {
+  // Trouver le fichier correspondant et mettre à jour son progress
+  const file = state.files.find(f => f.path === filePath);
+  if (file) {
+    file.progress = `${currentPage}/${totalPages} pages`;
+    updateFileList();
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════

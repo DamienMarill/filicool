@@ -16,8 +16,19 @@ from core import WatermarkEngine
 WEB_FOLDER = Path(__file__).parent.parent.parent / "web"
 eel.init(str(WEB_FOLDER))
 
+# Variable globale pour le fichier en cours de traitement
+_current_file_path = None
+
+def _pdf_progress_callback(current_page: int, total_pages: int):
+    """Callback appelé pendant le traitement PDF pour envoyer la progression."""
+    global _current_file_path
+    if _current_file_path:
+        # Envoyer la mise à jour au frontend via eel
+        eel.onPdfProgress(_current_file_path, current_page, total_pages)()
+
 # Global engine instance
 engine = WatermarkEngine()
+engine.set_progress_callback(_pdf_progress_callback)
 
 
 @eel.expose
@@ -40,6 +51,10 @@ def process_file(
         Dictionnaire avec le résultat du traitement
     """
     try:
+        global _current_file_path
+        # Définir le fichier en cours pour le callback de progression
+        _current_file_path = file_path
+        
         # Update engine settings
         engine.text = watermark_text
         engine.opacity = opacity
@@ -53,6 +68,9 @@ def process_file(
 
         # Process
         result = engine.process(input_path, output_path)
+        
+        # Réinitialiser le fichier en cours
+        _current_file_path = None
 
         if result.success:
             return {
@@ -232,6 +250,30 @@ def get_file_directory(file_path: str) -> str:
         Chemin du dossier parent
     """
     return str(Path(file_path).parent)
+
+
+@eel.expose
+def get_file_info(file_path: str) -> dict:
+    """
+    Récupère les informations d'un fichier (taille, etc).
+    
+    Args:
+        file_path: Chemin du fichier
+        
+    Returns:
+        Dictionnaire avec les infos du fichier
+    """
+    try:
+        path = Path(file_path)
+        if path.exists():
+            stat = path.stat()
+            return {
+                "size": stat.st_size,
+                "exists": True,
+            }
+        return {"size": 0, "exists": False}
+    except Exception:
+        return {"size": 0, "exists": False}
 
 
 def start_app():

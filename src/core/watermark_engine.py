@@ -67,11 +67,17 @@ class WatermarkEngine:
         self._outline = outline
         self._text_color = text_color
         self._outline_color = outline_color
+        self._progress_callback = None  # Callback optionnel pour progression PDF
 
         # Les processeurs seront recréés à la demande
         self._processors_dirty = True
         self._image_processor = None
         self._pdf_processor = None
+
+    def set_progress_callback(self, callback):
+        """Définit le callback de progression pour le traitement PDF."""
+        self._progress_callback = callback
+        self._processors_dirty = True  # Recréer le processeur PDF avec le callback
 
     def _create_processors(self):
         """Crée ou recrée les processeurs avec les options actuelles."""
@@ -94,6 +100,7 @@ class WatermarkEngine:
             outline=self._outline,
             text_color=self._text_color,
             outline_color=self._outline_color,
+            progress_callback=self._progress_callback,
         )
         self._processors_dirty = False
 
