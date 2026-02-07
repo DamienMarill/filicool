@@ -1,18 +1,18 @@
 """
 Fililico - PDF Processor
-Gère le filigranage des fichiers PDF
+Gère le filigranage des fichiers PDF via conversion en images
+Le filigrane est "burnt-in" dans les pixels, impossible à supprimer sans altérer le document
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 import io
+import tempfile
+import os
 
-from PyPDF2 import PdfReader, PdfWriter
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.colors import white
+from PIL import Image
+
+from .watermark_renderer import WatermarkRenderer
 
 
 class PDFProcessor:
@@ -24,77 +24,116 @@ class PDFProcessor:
         self,
         text: str = "CONFIDENTIEL",
         opacity: float = 0.3,
-        font_size: int = 60,
+        font_size_ratio: float = 0.05,  # Plus petit pour les PDFs (haute résolution)
+        min_font_size: int = 20,
+        max_font_size: int = 80,
+        pattern: str = "tiled",
+        rotation: int = -45,
+        spacing: float = 1.8,
+        outline: bool = True,
+        text_color: Tuple[int, int, int] = (0, 0, 0),
+        outline_color: Tuple[int, int, int] = (255, 255, 255),
+        dpi: int = 150,  # Résolution de conversion (équilibre qualité/taille)
     ):
-        """
-        Initialise le processeur PDF.
-
-        Args:
-            text: Texte du filigrane
-            opacity: Opacité du filigrane (0.0 à 1.0)
-            font_size: Taille de la police
-        """
-        self.text = text
-        self.opacity = max(0.0, min(1.0, opacity))
-        self.font_size = font_size
+        """Initialise le processeur PDF avec le renderer partagé."""
+        self.renderer = WatermarkRenderer(
+            text=text,
+            opacity=opacity,
+            font_size_ratio=font_size_ratio,
+            min_font_size=min_font_size,
+            max_font_size=max_font_size,
+            pattern=pattern,
+            rotation=rotation,
+            spacing=spacing,
+            outline=outline,
+            text_color=text_color,
+            outline_color=outline_color,
+        )
+        self.dpi = dpi
 
     @classmethod
     def is_supported(cls, file_path: Path) -> bool:
         """Vérifie si le format de fichier est supporté."""
         return file_path.suffix.lower() in cls.SUPPORTED_FORMATS
 
-    def _create_watermark_pdf(
-        self, page_width: float, page_height: float
-    ) -> io.BytesIO:
+    def _pdf_to_images(self, pdf_path: Path) -> list:
         """
-        Crée un PDF contenant uniquement le filigrane.
-
-        Args:
-            page_width: Largeur de la page
-            page_height: Hauteur de la page
-
-        Returns:
-            BytesIO contenant le PDF du filigrane
+        Convertit un PDF en liste d'images PIL.
+        Utilise pdf2image si disponible, sinon PyMuPDF (fitz).
         """
-        packet = io.BytesIO()
+        images = []
+        
+        # Essayer pdf2image d'abord
+        try:
+            from pdf2image import convert_from_path
+            images = convert_from_path(str(pdf_path), dpi=self.dpi)
+            return images
+        except ImportError:
+            pass
+        
+        # Fallback sur PyMuPDF (fitz)
+        try:
+            import fitz  # PyMuPDF
+            doc = fitz.open(str(pdf_path))
+            for page_num in range(len(doc)):
+                page = doc.load_page(page_num)
+                # Calculer le facteur de zoom pour le DPI souhaité
+                zoom = self.dpi / 72  # 72 est le DPI par défaut des PDFs
+                mat = fitz.Matrix(zoom, zoom)
+                pix = page.get_pixmap(matrix=mat)
+                img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                images.append(img)
+            doc.close()
+            return images
+        except ImportError:
+            pass
 
-        # Créer un canvas avec les dimensions de la page
-        c = canvas.Canvas(packet, pagesize=(page_width, page_height))
+        raise ImportError(
+            "Aucune bibliothèque PDF trouvée. "
+            "Installez pdf2image (pip install pdf2image) ou PyMuPDF (pip install pymupdf)"
+        )
 
-        # Configurer la transparence
-        c.setFillAlpha(self.opacity)
-        c.setFillColor(white)
+    def _images_to_pdf(self, images: list, output_path: Path):
+        """Convertit une liste d'images PIL en PDF."""
+        if not images:
+            raise ValueError("Aucune image à convertir")
 
-        # Calculer la position centrale
-        text_width = c.stringWidth(self.text, "Helvetica", self.font_size)
-        x = (page_width - text_width) / 2
-        y = page_height / 2
+        # Convertir toutes les images en RGB
+        rgb_images = []
+        for img in images:
+            if img.mode != "RGB":
+                rgb_images.append(img.convert("RGB"))
+            else:
+                rgb_images.append(img)
 
-        # Dessiner le texte
-        c.setFont("Helvetica", self.font_size)
-        c.drawString(x, y, self.text)
-
-        c.save()
-        packet.seek(0)
-
-        return packet
+        # Sauvegarder en PDF
+        first_image = rgb_images[0]
+        if len(rgb_images) > 1:
+            first_image.save(
+                output_path,
+                "PDF",
+                save_all=True,
+                append_images=rgb_images[1:],
+                resolution=self.dpi,
+            )
+        else:
+            first_image.save(output_path, "PDF", resolution=self.dpi)
 
     def process(
         self, input_path: Path, output_path: Optional[Path] = None
     ) -> Path:
         """
         Applique le filigrane sur toutes les pages d'un PDF.
+        
+        Le PDF est converti en images, le filigrane est appliqué sur chaque page,
+        puis les images sont reconverties en PDF.
 
         Args:
             input_path: Chemin du fichier source
-            output_path: Chemin de sortie (optionnel, génère automatiquement si None)
+            output_path: Chemin de sortie (optionnel)
 
         Returns:
             Chemin du fichier créé
-
-        Raises:
-            FileNotFoundError: Si le fichier source n'existe pas
-            ValueError: Si le format n'est pas supporté
         """
         input_path = Path(input_path)
 
@@ -107,49 +146,45 @@ class PDFProcessor:
                 f"Formats supportés: {', '.join(self.SUPPORTED_FORMATS)}"
             )
 
-        # Générer le chemin de sortie si non spécifié
         if output_path is None:
             output_path = input_path.parent / f"{input_path.stem}_watermarked.pdf"
 
-        # Lire le PDF source
-        reader = PdfReader(input_path)
-        writer = PdfWriter()
+        # Convertir PDF en images
+        print(f"  📄 Conversion du PDF en images ({self.dpi} DPI)...")
+        pages = self._pdf_to_images(input_path)
+        print(f"  📄 {len(pages)} page(s) à traiter")
 
         # Appliquer le filigrane sur chaque page
-        for page in reader.pages:
-            # Obtenir les dimensions de la page
-            media_box = page.mediabox
-            page_width = float(media_box.width)
-            page_height = float(media_box.height)
+        watermarked_pages = []
+        for i, page in enumerate(pages):
+            print(f"  🍭 Filigranage page {i + 1}/{len(pages)}...")
+            watermarked = self.renderer.apply_watermark(page)
+            watermarked_pages.append(watermarked)
 
-            # Créer le PDF du filigrane pour cette taille de page
-            watermark_pdf = self._create_watermark_pdf(page_width, page_height)
-            watermark_reader = PdfReader(watermark_pdf)
-            watermark_page = watermark_reader.pages[0]
-
-            # Fusionner le filigrane avec la page
-            page.merge_page(watermark_page)
-            writer.add_page(page)
-
-        # Copier les métadonnées
-        if reader.metadata:
-            writer.add_metadata(reader.metadata)
-
-        # Sauvegarder
-        with open(output_path, "wb") as output_file:
-            writer.write(output_file)
+        # Reconvertir en PDF
+        print(f"  📄 Création du PDF final...")
+        self._images_to_pdf(watermarked_pages, output_path)
 
         return output_path
 
     def get_page_count(self, file_path: Path) -> int:
-        """
-        Retourne le nombre de pages d'un PDF.
+        """Retourne le nombre de pages d'un PDF."""
+        # Essayer PyPDF2 d'abord (plus léger)
+        try:
+            from PyPDF2 import PdfReader
+            reader = PdfReader(file_path)
+            return len(reader.pages)
+        except ImportError:
+            pass
 
-        Args:
-            file_path: Chemin du fichier PDF
+        # Fallback sur PyMuPDF
+        try:
+            import fitz
+            doc = fitz.open(str(file_path))
+            count = len(doc)
+            doc.close()
+            return count
+        except ImportError:
+            pass
 
-        Returns:
-            Nombre de pages
-        """
-        reader = PdfReader(file_path)
-        return len(reader.pages)
+        return 0

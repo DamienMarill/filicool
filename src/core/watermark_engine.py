@@ -4,7 +4,7 @@ Moteur principal qui unifie le traitement des images et des PDF
 """
 
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Tuple
 from dataclasses import dataclass
 from enum import Enum
 
@@ -38,7 +38,13 @@ class WatermarkEngine:
     def __init__(
         self,
         text: str = "CONFIDENTIEL",
-        opacity: float = 0.5,
+        opacity: float = 0.3,
+        pattern: str = "tiled",
+        rotation: int = -45,
+        spacing: float = 1.8,
+        outline: bool = True,
+        text_color: Tuple[int, int, int] = (0, 0, 0),
+        outline_color: Tuple[int, int, int] = (255, 255, 255),
     ):
         """
         Initialise le moteur de filigranage.
@@ -46,13 +52,55 @@ class WatermarkEngine:
         Args:
             text: Texte du filigrane
             opacity: Opacité du filigrane (0.0 à 1.0)
+            pattern: Mode de rendu ("single" ou "tiled")
+            rotation: Angle de rotation en degrés
+            spacing: Espacement entre répétitions
+            outline: Ajouter un contour au texte
+            text_color: Couleur du texte (RGB)
+            outline_color: Couleur du contour (RGB)
         """
-        self.text = text
-        self.opacity = opacity
+        self._text = text
+        self._opacity = max(0.0, min(1.0, opacity))
+        self._pattern = pattern
+        self._rotation = rotation
+        self._spacing = spacing
+        self._outline = outline
+        self._text_color = text_color
+        self._outline_color = outline_color
 
-        # Initialiser les processeurs
-        self._image_processor = ImageProcessor(text=text, opacity=opacity)
-        self._pdf_processor = PDFProcessor(text=text, opacity=opacity)
+        # Les processeurs seront recréés à la demande
+        self._processors_dirty = True
+        self._image_processor = None
+        self._pdf_processor = None
+
+    def _create_processors(self):
+        """Crée ou recrée les processeurs avec les options actuelles."""
+        self._image_processor = ImageProcessor(
+            text=self._text,
+            opacity=self._opacity,
+            pattern=self._pattern,
+            rotation=self._rotation,
+            spacing=self._spacing,
+            outline=self._outline,
+            text_color=self._text_color,
+            outline_color=self._outline_color,
+        )
+        self._pdf_processor = PDFProcessor(
+            text=self._text,
+            opacity=self._opacity,
+            pattern=self._pattern,
+            rotation=self._rotation,
+            spacing=self._spacing,
+            outline=self._outline,
+            text_color=self._text_color,
+            outline_color=self._outline_color,
+        )
+        self._processors_dirty = False
+
+    def _ensure_processors(self):
+        """S'assure que les processeurs sont à jour."""
+        if self._processors_dirty or self._image_processor is None:
+            self._create_processors()
 
     @property
     def text(self) -> str:
@@ -60,12 +108,9 @@ class WatermarkEngine:
 
     @text.setter
     def text(self, value: str):
-        self._text = value
-        # Mettre à jour les processeurs si ils existent
-        if hasattr(self, "_image_processor"):
-            self._image_processor.text = value
-        if hasattr(self, "_pdf_processor"):
-            self._pdf_processor.text = value
+        if self._text != value:
+            self._text = value
+            self._processors_dirty = True
 
     @property
     def opacity(self) -> float:
@@ -73,23 +118,53 @@ class WatermarkEngine:
 
     @opacity.setter
     def opacity(self, value: float):
-        self._opacity = max(0.0, min(1.0, value))
-        # Mettre à jour les processeurs si ils existent
-        if hasattr(self, "_image_processor"):
-            self._image_processor.opacity = self._opacity
-        if hasattr(self, "_pdf_processor"):
-            self._pdf_processor.opacity = self._opacity
+        value = max(0.0, min(1.0, value))
+        if self._opacity != value:
+            self._opacity = value
+            self._processors_dirty = True
+
+    @property
+    def pattern(self) -> str:
+        return self._pattern
+
+    @pattern.setter
+    def pattern(self, value: str):
+        if self._pattern != value:
+            self._pattern = value
+            self._processors_dirty = True
+
+    @property
+    def rotation(self) -> int:
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, value: int):
+        if self._rotation != value:
+            self._rotation = value
+            self._processors_dirty = True
+
+    @property
+    def spacing(self) -> float:
+        return self._spacing
+
+    @spacing.setter
+    def spacing(self, value: float):
+        if self._spacing != value:
+            self._spacing = value
+            self._processors_dirty = True
+
+    @property
+    def outline(self) -> bool:
+        return self._outline
+
+    @outline.setter
+    def outline(self, value: bool):
+        if self._outline != value:
+            self._outline = value
+            self._processors_dirty = True
 
     def get_file_type(self, file_path: Path) -> FileType:
-        """
-        Détermine le type de fichier.
-
-        Args:
-            file_path: Chemin du fichier
-
-        Returns:
-            Type de fichier (IMAGE, PDF, ou UNKNOWN)
-        """
+        """Détermine le type de fichier."""
         file_path = Path(file_path)
 
         if ImageProcessor.is_supported(file_path):
@@ -100,15 +175,7 @@ class WatermarkEngine:
             return FileType.UNKNOWN
 
     def is_supported(self, file_path: Path) -> bool:
-        """
-        Vérifie si le fichier est supporté.
-
-        Args:
-            file_path: Chemin du fichier
-
-        Returns:
-            True si le fichier est supporté
-        """
+        """Vérifie si le fichier est supporté."""
         return self.get_file_type(file_path) != FileType.UNKNOWN
 
     def get_supported_extensions(self) -> set:
@@ -130,6 +197,9 @@ class WatermarkEngine:
         Returns:
             Résultat du traitement
         """
+        # S'assurer que les processeurs sont à jour
+        self._ensure_processors()
+
         input_path = Path(input_path)
         output_path = Path(output_path) if output_path else None
 
@@ -180,7 +250,7 @@ class WatermarkEngine:
 
         Args:
             input_paths: Liste des chemins de fichiers sources
-            output_dir: Dossier de sortie (optionnel, utilise le dossier source si None)
+            output_dir: Dossier de sortie (optionnel)
 
         Returns:
             Liste des résultats de traitement
@@ -191,7 +261,6 @@ class WatermarkEngine:
         for input_path in input_paths:
             input_path = Path(input_path)
 
-            # Calculer le chemin de sortie si un dossier est spécifié
             if output_dir:
                 output_path = output_dir / f"{input_path.stem}_watermarked{input_path.suffix}"
             else:
@@ -209,7 +278,6 @@ class WatermarkEngine:
     ) -> Optional[str]:
         """
         Génère une preview en base64.
-        Fonctionne uniquement pour les images.
 
         Args:
             input_path: Chemin du fichier source
@@ -218,11 +286,12 @@ class WatermarkEngine:
         Returns:
             Chaîne base64 ou None si non supporté
         """
+        self._ensure_processors()
+        
         input_path = Path(input_path)
         file_type = self.get_file_type(input_path)
 
         if file_type == FileType.IMAGE:
             return self._image_processor.generate_preview(input_path, max_size)
         else:
-            # Les previews PDF ne sont pas encore supportées
             return None

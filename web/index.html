@@ -25,14 +25,6 @@
           <img src="assets/images/logo.png" alt="Fililico Logo" />
           <h1 class="app-title">Fililico</h1>
         </div>
-        <div class="app-mascot">
-          <img
-            id="mascot"
-            class="mascot idle"
-            src="assets/images/stamp_1.png"
-            alt="Mascotte Fililico"
-          />
-        </div>
       </header>
 
       <!-- Main Content -->
@@ -43,9 +35,15 @@
             <!-- Drop Zone -->
             <section class="card card-pink">
               <h2 class="section-title"><span>📂</span> Vos fichiers</h2>
-
               <div id="dropZone" class="drop-zone">
-                <span class="drop-zone-icon">🍭</span>
+                <div class="app-mascot">
+                  <img
+                    id="mascot"
+                    class="mascot idle"
+                    src="assets/images/stamp_1.png"
+                    alt="Mascotte Fililico"
+                  />
+                </div>
                 <span class="drop-zone-text">Glissez vos fichiers ici</span>
                 <span class="drop-zone-hint">ou cliquez pour sélectionner</span>
                 <span class="drop-zone-formats"
@@ -109,7 +107,7 @@
               </div>
 
               <!-- Opacité -->
-              <div class="form-group" style="margin-top: var(--space-4)">
+              <div class="form-group" style="margin-top: var(--space-4); display: none">
                 <label class="label" for="opacitySlider">
                   Opacité: <span id="opacityValue">50</span>%
                 </label>
@@ -118,7 +116,7 @@
                   id="opacitySlider"
                   min="10"
                   max="90"
-                  value="50"
+                  value="20"
                   style="width: 100%"
                 />
               </div>
@@ -126,14 +124,29 @@
               <!-- Dossier de sortie -->
               <div class="form-group" style="margin-top: var(--space-4)">
                 <label class="label" for="outputFolder"
-                  >Dossier de sortie (optionnel)</label
+                  >Dossier de sortie</label
                 >
-                <input
-                  type="text"
-                  id="outputFolder"
-                  class="input"
-                  placeholder="Même dossier que l'original"
-                />
+                <div style="display: flex; gap: 8px">
+                  <input
+                    type="text"
+                    id="outputFolder"
+                    class="input"
+                    placeholder="Dossier du fichier original"
+                    style="flex: 1"
+                    readonly
+                  />
+                  <button
+                    type="button"
+                    id="browseOutputBtn"
+                    class="btn btn-secondary"
+                    title="Parcourir"
+                  >
+                    📁
+                  </button>
+                </div>
+                <small style="color: var(--magic-berry); font-size: 0.75rem; margin-top: 4px; display: block">
+                  Auto-détecté depuis vos fichiers • Cliquez 📁 pour changer
+                </small>
               </div>
             </section>
 
@@ -184,6 +197,7 @@
     </div>
 
     <!-- Scripts -->
+    <script type="text/javascript" src="/eel.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

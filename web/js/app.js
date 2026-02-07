@@ -5,10 +5,11 @@
 
 // State
 const state = {
-  files: [],
+  files: [], // Maintenant contient des objets {path, name, size, type}
   selectedFileIndex: null,
   isProcessing: false,
   mascotState: "idle",
+  userSetOutputFolder: false,
 };
 
 // DOM Elements
@@ -68,14 +69,28 @@ function setMascotState(newState) {
 function initDragDrop() {
   const dropZone = elements.dropZone;
 
-  // Click to select
-  dropZone.addEventListener("click", () => {
-    elements.fileInput.click();
+  // Click to select - use Python file picker for real paths
+  dropZone.addEventListener("click", async () => {
+    if (typeof eel !== "undefined") {
+      try {
+        const files = await eel.select_files()();
+        if (files && files.length > 0) {
+          handleFilesFromPython(files);
+        }
+      } catch (e) {
+        console.error("File selection error:", e);
+        showNotification("Erreur lors de la sélection", "error");
+      }
+    } else {
+      // Fallback pour dev sans Eel
+      elements.fileInput.click();
+    }
   });
 
-  // File input change
+  // File input change (fallback)
   elements.fileInput.addEventListener("change", (e) => {
-    handleFiles(Array.from(e.target.files));
+    // Note: Browser files don't have real paths
+    showNotification("Utilisez le clic pour sélectionner avec les vrais chemins", "info");
   });
 
   // Drag events
@@ -133,7 +148,68 @@ function formatFileSize(bytes) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
 }
 
-function handleFiles(files) {
+/**
+ * Gère les fichiers venant du sélecteur Python (avec vrais chemins)
+ */
+async function handleFilesFromPython(filePaths) {
+  if (filePaths.length === 0) {
+    showNotification("Aucun fichier sélectionné !", "error");
+    return;
+  }
+
+  // Créer des objets fichier avec les chemins complets
+  const newFiles = filePaths.map((path) => {
+    const name = path.split(/[\\/]/).pop(); // Extraire le nom du fichier
+    return {
+      path: path,
+      name: name,
+      size: 0, // On ne connaît pas la taille, pas grave
+      type: getFileType(name),
+    };
+  });
+
+  // Add to state
+  state.files.push(...newFiles);
+
+  // Auto-set output folder from first file's directory
+  if (!state.userSetOutputFolder && newFiles.length > 0) {
+    try {
+      const folder = await eel.get_file_directory(newFiles[0].path)();
+      if (folder) {
+        elements.outputFolder.value = folder;
+      }
+    } catch (e) {
+      console.warn("Could not get file directory:", e);
+    }
+  }
+
+  // Update UI
+  updateFileList();
+  updateFileCount();
+  updateProcessButton();
+
+  // Select first file if none selected
+  if (state.selectedFileIndex === null && state.files.length > 0) {
+    selectFile(0);
+  }
+
+  showNotification(`${newFiles.length} fichier(s) ajouté(s) !`, "success");
+}
+
+function getFileType(fileName) {
+  const ext = fileName.split(".").pop().toLowerCase();
+  const types = {
+    png: "image/png",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    bmp: "image/bmp",
+    gif: "image/gif",
+    pdf: "application/pdf",
+  };
+  return types[ext] || "application/octet-stream";
+}
+
+async function handleFiles(files) {
   const supportedFiles = files.filter(isSupported);
 
   if (supportedFiles.length === 0) {
@@ -143,6 +219,22 @@ function handleFiles(files) {
 
   // Add to state
   state.files.push(...supportedFiles);
+
+  // Auto-set output folder if not manually set by user
+  if (!state.userSetOutputFolder && supportedFiles.length > 0) {
+    const firstFile = supportedFiles[0];
+    // Get the directory of the first file via Eel or fallback
+    if (typeof eel !== "undefined" && firstFile.path) {
+      try {
+        const folder = await eel.get_file_directory(firstFile.path)();
+        if (folder) {
+          elements.outputFolder.value = folder;
+        }
+      } catch (e) {
+        console.warn("Could not get file directory:", e);
+      }
+    }
+  }
 
   // Update UI
   updateFileList();
@@ -252,7 +344,7 @@ function updateProcessButton() {
 // PREVIEW
 // ═══════════════════════════════════════════════════════════════
 
-function generatePreview(file) {
+async function generatePreview(file) {
   const isPdf = file.name.toLowerCase().endsWith(".pdf");
 
   if (isPdf) {
@@ -267,15 +359,37 @@ function generatePreview(file) {
     elements.previewPlaceholder.classList.remove("hidden");
     elements.previewImage.classList.add("hidden");
   } else {
-    // Image preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      elements.previewImage.src = e.target.result;
-      elements.previewImage.classList.remove("hidden");
-      elements.previewPlaceholder.classList.add("hidden");
-    };
-    reader.readAsDataURL(file);
+    // Image preview - use Eel to get base64 from real path
+    if (typeof eel !== "undefined" && file.path) {
+      try {
+        const base64 = await eel.get_image_preview(file.path)();
+        if (base64) {
+          elements.previewImage.src = base64;
+          elements.previewImage.classList.remove("hidden");
+          elements.previewPlaceholder.classList.add("hidden");
+        } else {
+          showPreviewError(file.name);
+        }
+      } catch (e) {
+        console.error("Preview error:", e);
+        showPreviewError(file.name);
+      }
+    } else {
+      showPreviewError(file.name);
+    }
   }
+}
+
+function showPreviewError(fileName) {
+  elements.previewPlaceholder.innerHTML = `
+    <span class="preview-placeholder-icon">🖼️</span>
+    <span>${fileName}</span>
+    <span style="font-size: 0.875rem; color: var(--magic-berry);">
+      Aperçu non disponible
+    </span>
+  `;
+  elements.previewPlaceholder.classList.remove("hidden");
+  elements.previewImage.classList.add("hidden");
 }
 
 function clearPreview() {
@@ -484,6 +598,43 @@ function initOpacitySlider() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// OUTPUT FOLDER PICKER
+// ═══════════════════════════════════════════════════════════════
+
+function initOutputFolderPicker() {
+  const outputFolderInput = elements.outputFolder;
+  const browseBtn = document.getElementById("browseOutputBtn");
+  
+  if (browseBtn) {
+    browseBtn.addEventListener("click", async () => {
+      if (typeof eel !== "undefined") {
+        try {
+          const folder = await eel.select_output_folder(
+            outputFolderInput.value || null
+          )();
+          if (folder) {
+            outputFolderInput.value = folder;
+            state.userSetOutputFolder = true;
+            showNotification("Dossier de destination défini !", "success");
+          }
+        } catch (e) {
+          console.error("Folder selection error:", e);
+          showNotification("Erreur lors de la sélection du dossier", "error");
+        }
+      } else {
+        // Fallback pour le dev sans Eel
+        showNotification("Sélection de dossier disponible uniquement dans l'app", "info");
+      }
+    });
+  }
+
+  // Mark as user-set if they manually type in the field
+  outputFolderInput.addEventListener("input", () => {
+    state.userSetOutputFolder = true;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
 // PROCESS BUTTON
 // ═══════════════════════════════════════════════════════════════
 
@@ -498,6 +649,7 @@ function initProcessButton() {
 function init() {
   initDragDrop();
   initOpacitySlider();
+  initOutputFolderPicker();
   initProcessButton();
 
   console.log("🍭 Fililico initialized!");

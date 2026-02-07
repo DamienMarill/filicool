@@ -125,6 +125,115 @@ def check_file_supported(file_path: str) -> bool:
     return engine.is_supported(Path(file_path))
 
 
+@eel.expose
+def get_image_preview(file_path: str, max_size: int = 400) -> str:
+    """
+    Génère un aperçu base64 d'une image.
+    
+    Args:
+        file_path: Chemin de l'image
+        max_size: Taille maximale du côté le plus long
+        
+    Returns:
+        Data URL base64 de l'image ou chaîne vide si erreur
+    """
+    import base64
+    from io import BytesIO
+    from PIL import Image
+    
+    try:
+        path = Path(file_path)
+        if not path.exists():
+            return ""
+        
+        with Image.open(path) as img:
+            # Redimensionner pour l'aperçu
+            img.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+            
+            # Convertir en RGB si nécessaire (pour les PNG avec transparence)
+            if img.mode in ('RGBA', 'P'):
+                img = img.convert('RGB')
+            
+            # Encoder en base64
+            buffer = BytesIO()
+            img.save(buffer, format='JPEG', quality=85)
+            base64_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            
+            return f"data:image/jpeg;base64,{base64_data}"
+    except Exception as e:
+        print(f"Preview error: {e}")
+        return ""
+
+
+@eel.expose
+def select_files() -> list:
+    """
+    Ouvre un dialogue pour sélectionner des fichiers à traiter.
+    
+    Returns:
+        Liste des chemins de fichiers sélectionnés
+    """
+    import tkinter as tk
+    from tkinter import filedialog
+    
+    root = tk.Tk()
+    root.withdraw()
+    root.attributes('-topmost', True)
+    
+    files = filedialog.askopenfilenames(
+        title="Sélectionner des fichiers à filigraner",
+        filetypes=[
+            ("Images", "*.png *.jpg *.jpeg *.bmp *.gif"),
+            ("PDF", "*.pdf"),
+            ("Tous les fichiers supportés", "*.png *.jpg *.jpeg *.bmp *.gif *.pdf"),
+        ]
+    )
+    
+    root.destroy()
+    return list(files) if files else []
+
+
+@eel.expose
+def select_output_folder(initial_dir: str = None) -> str:
+    """
+    Ouvre un dialogue pour sélectionner un dossier de sortie.
+    
+    Args:
+        initial_dir: Dossier initial à afficher
+        
+    Returns:
+        Chemin du dossier sélectionné ou chaîne vide si annulé
+    """
+    import tkinter as tk
+    from tkinter import filedialog
+    
+    root = tk.Tk()
+    root.withdraw()  # Cacher la fenêtre principale
+    root.attributes('-topmost', True)  # Mettre au premier plan
+    
+    folder = filedialog.askdirectory(
+        title="Sélectionner le dossier de destination",
+        initialdir=initial_dir if initial_dir else None,
+    )
+    
+    root.destroy()
+    return folder or ""
+
+
+@eel.expose
+def get_file_directory(file_path: str) -> str:
+    """
+    Retourne le dossier parent d'un fichier.
+    
+    Args:
+        file_path: Chemin du fichier
+        
+    Returns:
+        Chemin du dossier parent
+    """
+    return str(Path(file_path).parent)
+
+
 def start_app():
     """Démarre l'application Eel."""
     print("🍭 Fililico - Démarrage...")
