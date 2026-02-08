@@ -1,4 +1,4 @@
-# 🍭 Fililico
+# 🍭 Fillico
 
 > _Le filigrane n'est plus une corvée, c'est une friandise visuelle !_
 
@@ -26,8 +26,8 @@ Application desktop multi-plateforme pour ajouter des filigranes sur vos images 
 
 ```bash
 # Cloner le repo
-git clone https://github.com/votreusername/fililico.git
-cd fililico
+git clone https://github.com/votreusername/fillico.git
+cd fillico
 
 # Créer l'environnement virtuel
 python -m venv venv
@@ -60,7 +60,7 @@ python src/ui/app.py
 
 ## 🍬 Charte Graphique
 
-Fililico utilise une esthétique **Kawaii Pop** inspirée des emballages de bonbons japonais :
+Fillico utilise une esthétique **Kawaii Pop** inspirée des emballages de bonbons japonais :
 
 - 💖 Bubblegum Pink `#F472B6`
 - 💜 Magic Berry `#A78BFA`

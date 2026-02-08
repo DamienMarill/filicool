@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🍭 Fililico - Build Script
+🍭 Fillico - Build Script
 Script pour générer les exécutables et installateurs
 """
 
@@ -32,12 +32,12 @@ def build_exe():
                 sys.executable,
                 "-m",
                 "PyInstaller",
-                "fililico.spec",
+                "fillico.spec",
                 "--clean",
             ],
             check=True,
         )
-        print("✅ Exécutable généré dans dist/Fililico.exe")
+        print("✅ Exécutable généré dans dist/Fillico.exe")
         return True
     except subprocess.CalledProcessError as e:
         print(f"❌ Erreur lors de la génération: {e}")
@@ -72,7 +72,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="🍭 Fililico - Script de build"
+        description="🍭 Fillico - Script de build"
     )
     parser.add_argument(
         "action",

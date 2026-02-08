@@ -1,5 +1,5 @@
 """
-🍭 Fililico - UI Application
+🍭 Fillico - UI Application
 Point d'entrée de l'application avec Eel
 """
 
@@ -32,6 +32,25 @@ engine.set_progress_callback(_pdf_progress_callback)
 
 
 @eel.expose
+def get_app_version() -> str:
+    """Retourne la version de l'application depuis pyproject.toml."""
+    try:
+        import tomllib
+    except ImportError:
+        import tomli as tomllib
+    
+    try:
+        pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+        if pyproject_path.exists():
+            with open(pyproject_path, "rb") as f:
+                data = tomllib.load(f)
+            return data.get("project", {}).get("version", "1.0.0")
+    except Exception:
+        pass
+    return "1.0.0"
+
+
+@eel.expose
 def get_default_output_folder() -> str:
     """Retourne le dossier home de l'utilisateur comme dossier de sortie par défaut."""
     return str(Path.home())
@@ -54,7 +73,7 @@ def upload_file(filename: str, base64_content: str) -> dict:
     
     try:
         # Créer un dossier temporaire pour les uploads
-        temp_dir = Path(tempfile.gettempdir()) / "fililico_uploads"
+        temp_dir = Path(tempfile.gettempdir()) / "fillico_uploads"
         temp_dir.mkdir(exist_ok=True)
         
         # Décoder et sauvegarder le fichier
@@ -322,7 +341,7 @@ def get_file_info(file_path: str) -> dict:
 
 def start_app():
     """Démarre l'application Eel."""
-    print("🍭 Fililico - Démarrage...")
+    print("🍭 Fillico - Démarrage...")
 
     try:
         # Start Eel with default browser

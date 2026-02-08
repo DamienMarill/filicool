@@ -1,5 +1,5 @@
 """
-🍭 Fililico - Tests Unitaires
+🍭 Fillico - Tests Unitaires
 Tests pour le Core Engine (watermark_engine, image_processor, pdf_processor)
 """
 

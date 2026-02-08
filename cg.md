@@ -1,4 +1,4 @@
-# 🍭 Mini-Charte Graphique : Fililico
+# 🍭 Mini-Charte Graphique : Fillico
 
 > **Le Mantra :** Le filigrane n'est plus une corvée, c'est une friandise visuelle. "Squish, Pop, Sparkle!"
 
@@ -6,11 +6,11 @@
 
 ## 1. Le Logotype (Le Concept)
 
-Pour Fililico, on oublie les logos technologiques froids. Le logo doit donner l'impression d'être un **bonbon en gélatine** ou un **jouet gonflable** qu'on a envie de presser. Il est vivant, rebondi et joyeux.
+Pour Fillico, on oublie les logos technologiques froids. Le logo doit donner l'impression d'être un **bonbon en gélatine** ou un **jouet gonflable** qu'on a envie de presser. Il est vivant, rebondi et joyeux.
 
 ### La Proposition Visuelle
 
-Imagine le mot **Fililico** écrit avec des lettres "ballons" très épaisses et arrondies, qui se chevauchent légèrement comme si elles étaient serrées les unes contre les autres dans un paquet de bonbons.
+Imagine le mot **Fillico** écrit avec des lettres "ballons" très épaisses et arrondies, qui se chevauchent légèrement comme si elles étaient serrées les unes contre les autres dans un paquet de bonbons.
 
 - **Style :** "Bubble Letters" / "Jelly Typography".
 - **Texture :** Glossy, brillant, avec des reflets "effet mouillé" ou plastique vinyle.
@@ -79,18 +79,18 @@ L'une des polices arrondies les plus lisibles pour le web et les interfaces. Ell
 
 ## 4. L'Univers Graphique & UI (Le "Squishy Style")
 
-C'est ce qui fera que Fililico ne ressemblera à aucun autre outil.
+C'est ce qui fera que Fillico ne ressemblera à aucun autre outil.
 
 ### 1. Les Formes : "Super Ellipse"
 
-Rien n'est carré chez Fililico.
+Rien n'est carré chez Fillico.
 
 - Les boutons sont des pilules complètes (`border-radius: 9999px`).
 - Les fenêtres et les cartes ont des angles énormes (`border-radius: 30px` minimum).
 
 ### 2. Les Boutons : Effet "Gummy"
 
-Un bouton Fililico doit donner envie de le manger.
+Un bouton Fillico doit donner envie de le manger.
 
 - **Au repos :** Il a une légère ombre colorée portée vers le bas.
 - **Au survol :** Il se soulève légèrement et brille plus fort.
@@ -109,4 +109,4 @@ Interdiction d'utiliser des ombres grises/noires qui "salissent" le design.
 L'interface doit ressembler à une boîte à jouets transparente. On utilise beaucoup l'effet **"Glassmorphism"** (verre dépoli) mais teinté de rose ou de violet, pour superposer les éléments tout en gardant de la légèreté.
 
 > **Prompt :**
-> "A Kawaii Pop style UI concept for a desktop app called 'Fililico'. The center logo is chubby, glossy bubble letters in pink and purple gradient, surrounded by sparkles and tiny stars. The background is a soft pastel gradient of lilac and mint. There is a cute mascot character, a smiling pink rubber stamp with eyes, next to a large, squishy, rounded button that says 'Filigraner Illico!'. The overall feel is playful, Japanese candy packaging aesthetic, frosted glass elements, colorful glowing shadows, and joyful energy. No harsh lines."
+> "A Kawaii Pop style UI concept for a desktop app called 'Fillico'. The center logo is chubby, glossy bubble letters in pink and purple gradient, surrounded by sparkles and tiny stars. The background is a soft pastel gradient of lilac and mint. There is a cute mascot character, a smiling pink rubber stamp with eyes, next to a large, squishy, rounded button that says 'Filigraner Illico!'. The overall feel is playful, Japanese candy packaging aesthetic, frosted glass elements, colorful glowing shadows, and joyful energy. No harsh lines."

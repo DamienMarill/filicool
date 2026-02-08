@@ -1,5 +1,5 @@
 /**
- * 🍭 Fililico - Main Application
+ * 🍭 Fillico - Main Application
  * Logique frontend pour l'interface Kawaii
  */
 
@@ -679,9 +679,19 @@ async function init() {
     } catch (e) {
       console.warn("Could not get default output folder:", e);
     }
+
+    // Récupérer et afficher la version dans le titre de la fenêtre
+    try {
+      const version = await eel.get_app_version()();
+      if (version) {
+        document.title = `Fillico v${version} - 🍭 Filigraner Illico!`;
+      }
+    } catch (e) {
+      console.warn("Could not get app version:", e);
+    }
   }
 
-  console.log("🍭 Fililico initialized!");
+  console.log("🍭 Fillico initialized!");
 }
 
 // Start app

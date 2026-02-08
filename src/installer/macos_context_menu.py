@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🍭 Fililico - macOS Context Menu Integration
+🍭 Fillico - macOS Context Menu Integration
 Quick Action pour Finder Services
 """
 
@@ -13,7 +13,7 @@ from typing import Optional
 
 class MacOSContextMenuInstaller:
     """
-    Gère l'installation du Quick Action macOS pour Fililico.
+    Gère l'installation du Quick Action macOS pour Fillico.
     Crée un workflow Automator pour le menu contextuel Finder.
     """
 
@@ -41,8 +41,8 @@ class MacOSContextMenuInstaller:
 
         # En production
         app_locations = [
-            "/Applications/Fililico.app/Contents/MacOS/Fililico",
-            self.home / "Applications" / "Fililico.app" / "Contents" / "MacOS" / "Fililico",
+            "/Applications/Fillico.app/Contents/MacOS/Fillico",
+            self.home / "Applications" / "Fillico.app" / "Contents" / "MacOS" / "Fillico",
         ]
         for loc in app_locations:
             if Path(loc).exists():
@@ -66,13 +66,13 @@ class MacOSContextMenuInstaller:
 
         # Info.plist
         info_plist = {
-            "CFBundleIdentifier": "dev.marill.fililico.quickaction",
+            "CFBundleIdentifier": "dev.marill.fillico.quickaction",
             "CFBundleName": "🍭 Ajouter un filigrane",
             "CFBundleShortVersionString": "1.0",
             "CFBundleVersion": "1",
             "NSServices": [
                 {
-                    "NSMenuItem": {"default": "🍭 Ajouter un filigrane (Fililico)"},
+                    "NSMenuItem": {"default": "🍭 Ajouter un filigrane (Fillico)"},
                     "NSMessage": "runWorkflowAsService",
                     "NSSendFileTypes": self.SUPPORTED_TYPES,
                 }
@@ -151,7 +151,7 @@ done''',
         """
         self.services_dir.mkdir(parents=True, exist_ok=True)
 
-        workflow_path = self.services_dir / "Fililico - Ajouter un filigrane.workflow"
+        workflow_path = self.services_dir / "Fillico - Ajouter un filigrane.workflow"
 
         # Supprimer l'ancien si existant
         if workflow_path.exists():
@@ -182,7 +182,7 @@ done''',
         Returns:
             True si la désinstallation a réussi
         """
-        workflow_path = self.services_dir / "Fililico - Ajouter un filigrane.workflow"
+        workflow_path = self.services_dir / "Fillico - Ajouter un filigrane.workflow"
 
         if workflow_path.exists():
             import shutil
@@ -200,7 +200,7 @@ done''',
 
     def is_installed(self) -> bool:
         """Vérifie si le Quick Action est installé."""
-        workflow_path = self.services_dir / "Fililico - Ajouter un filigrane.workflow"
+        workflow_path = self.services_dir / "Fillico - Ajouter un filigrane.workflow"
         return workflow_path.exists()
 
 
@@ -209,7 +209,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="🍭 Fililico - Intégration macOS"
+        description="🍭 Fillico - Intégration macOS"
     )
     parser.add_argument(
         "action",
@@ -226,9 +226,9 @@ def main():
         installer.uninstall()
     elif args.action == "status":
         if installer.is_installed():
-            print("✅ Quick Action Fililico est installé")
+            print("✅ Quick Action Fillico est installé")
         else:
-            print("❌ Quick Action Fililico n'est pas installé")
+            print("❌ Quick Action Fillico n'est pas installé")
 
 
 if __name__ == "__main__":

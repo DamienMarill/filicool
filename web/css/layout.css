@@ -1,5 +1,5 @@
 /**
- * 🍭 Fililico - Layout Styles
+ * 🍭 Fillico - Layout Styles
  * Structure de la page principale
  */
 
@@ -33,7 +33,28 @@
   -moz-filter: drop-shadow(0 0 3px var(--bubblegum-pink)) drop-shadow(0 0 5px #FFFFFF);
   -o-filter: drop-shadow(0 0 3px var(--bubblegum-pink)) drop-shadow(0 0 5px #FFFFFF);
   -ms-filter: drop-shadow(0 0 3px var(--bubblegum-pink)) drop-shadow(0 0 5px #FFFFFF);
+}
 
+.app-version {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-family: var(--font-display);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--magic-berry);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 2px solid rgba(255, 182, 193, 0.5);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.2);
+  transition: all var(--transition-normal) ease;
+}
+
+.app-version:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
 }
 
 .app-title {

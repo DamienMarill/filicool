@@ -1,5 +1,5 @@
 """
-Fililico - PDF Processor
+Fillico - PDF Processor
 Gère le filigranage des fichiers PDF via conversion en images
 Le filigrane est "burnt-in" dans les pixels, impossible à supprimer sans altérer le document
 """

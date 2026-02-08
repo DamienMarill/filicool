@@ -1,4 +1,4 @@
-# Fililico - Requirements
+# Fillico - Requirements
 # Python 3.11+
 
 # Core - Image Processing

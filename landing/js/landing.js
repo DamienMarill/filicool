@@ -1,5 +1,5 @@
 /**
- * 🍭 Fililico Landing Page - JavaScript
+ * 🍭 Fillico Landing Page - JavaScript
  * Interactions et animations
  */
 

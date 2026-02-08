@@ -1,5 +1,5 @@
 """
-Fililico - Installer Package
+Fillico - Installer Package
 Scripts d'installation pour les différentes plateformes
 """
 

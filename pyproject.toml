@@ -1,0 +1,62 @@
+# 🍭 Fillico - Configuration du projet
+# Standard Python PEP 517/518
+
+[project]
+name = "fillico"
+version = "1.0.0"
+description = "Application de filigranage d'images et PDF avec style Kawaii Pop"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Fillico Team", email = "contact@fillico.app"}
+]
+requires-python = ">=3.8"
+keywords = ["watermark", "filigrane", "pdf", "image", "eel", "desktop"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Desktop Environment",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Graphics",
+]
+
+dependencies = [
+    "eel>=0.16.0",
+    "Pillow>=10.0.0",
+    "PyMuPDF>=1.23.0",
+    "pdf2image>=1.16.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pyinstaller>=6.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/fillico/fillico"
+Documentation = "https://github.com/fillico/fillico#readme"
+Repository = "https://github.com/fillico/fillico.git"
+Issues = "https://github.com/fillico/fillico/issues"
+
+[project.scripts]
+fillico = "main:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"

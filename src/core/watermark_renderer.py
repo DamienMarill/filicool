@@ -1,5 +1,5 @@
 """
-Fililico - Watermark Renderer
+Fillico - Watermark Renderer
 Logique de rendu du filigrane partagée entre images et PDFs
 """
 

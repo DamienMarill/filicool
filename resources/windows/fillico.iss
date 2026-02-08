@@ -1,11 +1,11 @@
-; 🍭 Fililico - Inno Setup Script
+; 🍭 Fillico - Inno Setup Script
 ; Configuration pour l'installateur Windows
 
-#define MyAppName "Fililico"
+#define MyAppName "Fillico"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "Marill Dev"
-#define MyAppURL "https://github.com/marill-dev/fililico"
-#define MyAppExeName "Fililico.exe"
+#define MyAppURL "https://github.com/marill-dev/fillico"
+#define MyAppExeName "Fillico.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -21,7 +21,7 @@ DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 ; Output settings
 OutputDir=..\build\installers
-OutputBaseFilename=Fililico-{#MyAppVersion}-Setup
+OutputBaseFilename=Fillico-{#MyAppVersion}-Setup
 SetupIconFile=..\assets\images\logo.ico
 Compression=lzma
 SolidCompression=yes
@@ -41,7 +41,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "contextmenu"; Description: "Ajouter au menu contextuel (clic droit)"; GroupDescription: "Intégration système:"
 
 [Files]
-Source: "..\dist\Fililico.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\dist\Fillico.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\web\*"; DestDir: "{app}\web"; Flags: ignoreversion recursesubdirs createallsubdirs
 
@@ -52,9 +52,9 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Registry]
 ; Menu contextuel pour tous les fichiers images et PDF
-Root: HKCU; Subkey: "*\shell\Fililico"; ValueType: string; ValueName: ""; ValueData: "🍭 Ajouter un filigrane"; Tasks: contextmenu
-Root: HKCU; Subkey: "*\shell\Fililico"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\{#MyAppExeName}"; Tasks: contextmenu
-Root: HKCU; Subkey: "*\shell\Fililico\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: contextmenu
+Root: HKCU; Subkey: "*\shell\Fillico"; ValueType: string; ValueName: ""; ValueData: "🍭 Ajouter un filigrane"; Tasks: contextmenu
+Root: HKCU; Subkey: "*\shell\Fillico"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\{#MyAppExeName}"; Tasks: contextmenu
+Root: HKCU; Subkey: "*\shell\Fillico\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: contextmenu
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
@@ -73,6 +73,6 @@ begin
   if CurUninstallStep = usPostUninstall then
   begin
     // Nettoyer les clés de registre
-    RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, '*\shell\Fililico');
+    RegDeleteKeyIncludingSubkeys(HKEY_CURRENT_USER, '*\shell\Fillico');
   end;
 end;

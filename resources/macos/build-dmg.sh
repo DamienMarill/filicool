@@ -1,10 +1,10 @@
 #!/bin/bash
-# 🍭 Fililico - macOS DMG Builder
+# 🍭 Fillico - macOS DMG Builder
 # Script pour créer un DMG
 
 set -e
 
-APP_NAME="Fililico"
+APP_NAME="Fillico"
 VERSION="1.0.0"
 
 # Couleurs
@@ -12,7 +12,7 @@ PINK='\033[0;35m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-echo -e "${PINK}🍭 Building Fililico DMG...${NC}"
+echo -e "${PINK}🍭 Building Fillico DMG...${NC}"
 
 # Dossiers
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -35,15 +35,15 @@ cat > "$APP_DIR/Contents/Info.plist" << EOF
     <key>CFBundleDevelopmentRegion</key>
     <string>French</string>
     <key>CFBundleExecutable</key>
-    <string>Fililico</string>
+    <string>Fillico</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>CFBundleIdentifier</key>
-    <string>dev.marill.fililico</string>
+    <string>dev.marill.fillico</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>Fililico</string>
+    <string>Fillico</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
@@ -77,17 +77,17 @@ cat > "$APP_DIR/Contents/Info.plist" << EOF
 EOF
 
 # Copier l'exécutable
-if [ -f "$PROJECT_ROOT/dist/Fililico" ]; then
-    cp "$PROJECT_ROOT/dist/Fililico" "$APP_DIR/Contents/MacOS/Fililico"
+if [ -f "$PROJECT_ROOT/dist/Fillico" ]; then
+    cp "$PROJECT_ROOT/dist/Fillico" "$APP_DIR/Contents/MacOS/Fillico"
 else
     echo "⚠️  Exécutable non trouvé, création d'un script wrapper"
-    cat > "$APP_DIR/Contents/MacOS/Fililico" << 'WRAPPER'
+    cat > "$APP_DIR/Contents/MacOS/Fillico" << 'WRAPPER'
 #!/bin/bash
 DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$DIR/../Resources"
 python3 main.py "$@"
 WRAPPER
-    chmod +x "$APP_DIR/Contents/MacOS/Fililico"
+    chmod +x "$APP_DIR/Contents/MacOS/Fillico"
 fi
 
 # Copier les ressources

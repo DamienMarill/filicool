@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🍭 Fililico - Linux Context Menu Integration
+🍭 Fillico - Linux Context Menu Integration
 Scripts pour Nautilus (GNOME) et Dolphin (KDE)
 """
 
@@ -13,7 +13,7 @@ from typing import Optional
 
 class LinuxContextMenuInstaller:
     """
-    Gère l'installation du menu contextuel Linux pour Fililico.
+    Gère l'installation du menu contextuel Linux pour Fillico.
     Supporte Nautilus (GNOME) et Dolphin (KDE).
     """
 
@@ -31,7 +31,7 @@ class LinuxContextMenuInstaller:
             return quick_mode
 
         # En production (après installation)
-        for path in ["/usr/local/bin/fililico", "/opt/fililico/fililico"]:
+        for path in ["/usr/local/bin/fillico", "/opt/fillico/fillico"]:
             if Path(path).exists():
                 return Path(path)
 
@@ -78,10 +78,10 @@ class LinuxContextMenuInstaller:
         scripts_dir = self._get_nautilus_scripts_dir()
         scripts_dir.mkdir(parents=True, exist_ok=True)
 
-        script_path = scripts_dir / "🍭 Fililico - Ajouter un filigrane"
+        script_path = scripts_dir / "🍭 Fillico - Ajouter un filigrane"
 
         script_content = f'''#!/bin/bash
-# 🍭 Fililico - Script Nautilus
+# 🍭 Fillico - Script Nautilus
 # Ajoute un filigrane aux fichiers sélectionnés
 
 # Récupérer les fichiers sélectionnés
@@ -112,7 +112,7 @@ done
         service_dir = self._get_dolphin_service_dir()
         service_dir.mkdir(parents=True, exist_ok=True)
 
-        desktop_path = service_dir / "fililico.desktop"
+        desktop_path = service_dir / "fillico.desktop"
 
         desktop_content = f'''[Desktop Entry]
 Type=Service
@@ -121,7 +121,7 @@ MimeType=image/png;image/jpeg;image/bmp;image/gif;application/pdf;
 Actions=watermark
 
 [Desktop Action watermark]
-Name=🍭 Ajouter un filigrane (Fililico)
+Name=🍭 Ajouter un filigrane (Fillico)
 Icon=applications-graphics
 Exec=python3 "{self.app_path}" %f
 '''
@@ -148,13 +148,13 @@ Exec=python3 "{self.app_path}" %f
         apps_dir = Path(xdg_data) / "applications"
         apps_dir.mkdir(parents=True, exist_ok=True)
 
-        desktop_path = apps_dir / "fililico.desktop"
+        desktop_path = apps_dir / "fillico.desktop"
         icon_path = Path(__file__).parent.parent.parent / "assets" / "images" / "logo.png"
 
         desktop_content = f'''[Desktop Entry]
 Version=1.0
 Type=Application
-Name=Fililico
+Name=Fillico
 GenericName=Watermark Tool
 Comment=🍭 Application de filigranage kawaii
 Exec=python3 "{self.app_path.parent.parent / "main.py"}"
@@ -213,11 +213,11 @@ Keywords=watermark;filigrane;image;pdf;
             True si la désinstallation a réussi
         """
         files_to_remove = [
-            self._get_nautilus_scripts_dir() / "🍭 Fililico - Ajouter un filigrane",
-            self._get_dolphin_service_dir() / "fililico.desktop",
+            self._get_nautilus_scripts_dir() / "🍭 Fillico - Ajouter un filigrane",
+            self._get_dolphin_service_dir() / "fillico.desktop",
             Path(os.environ.get("XDG_DATA_HOME", self.home / ".local/share"))
             / "applications"
-            / "fililico.desktop",
+            / "fillico.desktop",
         ]
 
         for file_path in files_to_remove:
@@ -234,7 +234,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="🍭 Fililico - Intégration Linux"
+        description="🍭 Fillico - Intégration Linux"
     )
     parser.add_argument(
         "action",

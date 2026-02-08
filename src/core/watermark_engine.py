@@ -1,5 +1,5 @@
 """
-Fililico - Watermark Engine
+Fillico - Watermark Engine
 Moteur principal qui unifie le traitement des images et des PDF
 """
 

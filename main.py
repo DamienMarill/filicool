@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🍭 Fililico - Main Entry Point
+🍭 Fillico - Main Entry Point
 Le filigrane n'est plus une corvée, c'est une friandise visuelle !
 """
 

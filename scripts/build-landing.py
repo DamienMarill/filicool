@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🍭 Fililico - Script de build de la landing page
+🍭 Fillico - Script de build de la landing page
 
 Ce script prépare la landing page pour le déploiement sur GitHub Pages :
 1. Copie les assets du projet vers le dossier landing
@@ -160,12 +160,12 @@ def deploy_to_gh_pages():
 
 
 def main():
-    parser = ArgumentParser(description="Build de la landing page Fililico")
+    parser = ArgumentParser(description="Build de la landing page Fillico")
     parser.add_argument("--deploy", action="store_true", help="Déployer vers gh-pages")
     parser.add_argument("--placeholders", action="store_true", help="Créer des images placeholder")
     args = parser.parse_args()
     
-    log("🍭", "Fililico Landing Page Builder")
+    log("🍭", "Fillico Landing Page Builder")
     log("─" * 40, "")
     
     if args.placeholders:

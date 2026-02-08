@@ -1,4 +1,4 @@
-# 🛠️ Guide Développeur - Fililico
+# 🛠️ Guide Développeur - Fillico
 
 > Documentation technique pour les contributeurs
 
@@ -21,7 +21,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Fililico                              │
+│                        Fillico                              │
 ├─────────────────────────────────────────────────────────────┤
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
 │  │  Mode Quick │  │  Interface  │  │   Menu Contextuel   │  │
@@ -59,8 +59,8 @@
 
 ```bash
 # Cloner le repo
-git clone https://github.com/marill-dev/fililico.git
-cd fililico
+git clone https://github.com/marill-dev/fillico.git
+cd fillico
 
 # Créer l'environnement virtuel
 python -m venv venv
@@ -79,7 +79,7 @@ python main.py
 ## Structure du Code
 
 ```
-fililico/
+fillico/
 ├── main.py                 # Point d'entrée principal
 ├── src/
 │   ├── core/               # Logique métier
@@ -222,7 +222,7 @@ class TestWatermarkEngine:
 
 ```bash
 # Windows
-python -m PyInstaller fililico.spec --clean
+python -m PyInstaller fillico.spec --clean
 
 # Ou via le script
 python build.py build
@@ -237,9 +237,9 @@ python build.py build
 
 GitHub Actions génère automatiquement :
 
-- `Fililico.exe` (Windows)
-- `Fililico` (Linux)
-- `Fililico` (macOS)
+- `Fillico.exe` (Windows)
+- `Fillico` (Linux)
+- `Fillico` (macOS)
 
 ---
 

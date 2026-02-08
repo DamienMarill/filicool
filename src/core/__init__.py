@@ -1,5 +1,5 @@
 """
-Fililico - Core Package
+Fillico - Core Package
 🍭 Le filigrane n'est plus une corvée, c'est une friandise visuelle !
 """
 

@@ -56,7 +56,7 @@ Application desktop multi-plateforme de filigranage avec style **Kawaii Pop**.
 ### 📁 Structure
 
 ```
-fililico/
+fillico/
 ├── src/core/       # Moteur de filigranage
 ├── src/ui/         # Interfaces (Web + Quick)
 ├── src/installer/  # Intégration système

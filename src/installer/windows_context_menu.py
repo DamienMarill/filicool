@@ -1,5 +1,5 @@
 """
-🍭 Fililico - Windows Context Menu Integration
+🍭 Fillico - Windows Context Menu Integration
 Script d'installation/désinstallation du menu contextuel Windows
 """
 
@@ -11,7 +11,7 @@ from typing import List
 
 class WindowsContextMenuInstaller:
     """
-    Gère l'installation du menu contextuel Windows pour Fililico.
+    Gère l'installation du menu contextuel Windows pour Fillico.
     Ajoute "Ajouter un filigrane" au clic droit sur les fichiers supportés.
     """
 
@@ -19,8 +19,8 @@ class WindowsContextMenuInstaller:
     SUPPORTED_EXTENSIONS = [".png", ".jpg", ".jpeg", ".bmp", ".gif", ".pdf"]
 
     # Clé de registre pour le shell
-    SHELL_KEY = r"*\shell\Fililico"
-    COMMAND_KEY = r"*\shell\Fililico\command"
+    SHELL_KEY = r"*\shell\Fillico"
+    COMMAND_KEY = r"*\shell\Fillico\command"
 
     def __init__(self):
         """Initialise l'installateur."""
@@ -34,7 +34,7 @@ class WindowsContextMenuInstaller:
             return quick_mode_path
 
         # En production, chercher l'exécutable
-        exe_path = Path(sys.executable).parent / "fililico.exe"
+        exe_path = Path(sys.executable).parent / "fillico.exe"
         if exe_path.exists():
             return exe_path
 
@@ -133,7 +133,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="🍭 Fililico - Gestionnaire du menu contextuel Windows"
+        description="🍭 Fillico - Gestionnaire du menu contextuel Windows"
     )
     parser.add_argument(
         "action",
@@ -150,9 +150,9 @@ def main():
         installer.uninstall()
     elif args.action == "status":
         if installer.is_installed():
-            print("✅ Le menu contextuel Fililico est installé")
+            print("✅ Le menu contextuel Fillico est installé")
         else:
-            print("❌ Le menu contextuel Fililico n'est pas installé")
+            print("❌ Le menu contextuel Fillico n'est pas installé")
 
 
 if __name__ == "__main__":

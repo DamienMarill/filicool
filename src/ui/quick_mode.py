@@ -1,5 +1,5 @@
 """
-🍭 Fililico - Quick Mode UI
+🍭 Fillico - Quick Mode UI
 Interface minimaliste Tkinter pour le filigranage rapide via clic droit
 """
 
@@ -54,7 +54,7 @@ class QuickModeApp:
 
     def _setup_window(self):
         """Configure la fenêtre principale."""
-        self.root.title("🍭 Fililico - Quick Mode")
+        self.root.title("🍭 Fillico - Quick Mode")
         self.root.geometry(f"{self.WIDTH}x{self.HEIGHT}")
         self.root.resizable(False, False)
         self.root.configure(bg=self.COLORS["bg"])
@@ -253,7 +253,7 @@ def main():
 
     if not file_path:
         # Mode démo sans fichier
-        print("🍭 Fililico Quick Mode")
+        print("🍭 Fillico Quick Mode")
         print("Usage: python quick_mode.py <fichier>")
         print("\nLancement en mode démo...")
 

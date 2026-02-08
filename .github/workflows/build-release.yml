@@ -1,4 +1,4 @@
-name: 🍭 Fililico CI/CD
+name: 🍭 Fillico CI/CD
 
 on:
   push:
@@ -57,13 +57,13 @@ jobs:
 
       - name: Build executable
         run: |
-          python -m PyInstaller fililico.spec --clean
+          python -m PyInstaller fillico.spec --clean
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Fililico-Windows
-          path: dist/Fililico.exe
+          name: Fillico-Windows
+          path: dist/Fillico.exe
 
   # ═══════════════════════════════════════════════════════════════
   # BUILD LINUX
@@ -89,13 +89,13 @@ jobs:
 
       - name: Build executable
         run: |
-          python -m PyInstaller fililico.spec --clean
+          python -m PyInstaller fillico.spec --clean
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Fililico-Linux
-          path: dist/Fililico
+          name: Fillico-Linux
+          path: dist/Fillico
 
   # ═══════════════════════════════════════════════════════════════
   # BUILD MACOS
@@ -121,13 +121,13 @@ jobs:
 
       - name: Build executable
         run: |
-          python -m PyInstaller fililico.spec --clean
+          python -m PyInstaller fillico.spec --clean
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Fililico-macOS
-          path: dist/Fililico
+          name: Fillico-macOS
+          path: dist/Fillico
 
   # ═══════════════════════════════════════════════════════════════
   # RELEASE
@@ -144,38 +144,38 @@ jobs:
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
         with:
-          name: Fililico-Windows
+          name: Fillico-Windows
           path: artifacts/windows
 
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
         with:
-          name: Fililico-Linux
+          name: Fillico-Linux
           path: artifacts/linux
 
       - name: Download macOS artifact
         uses: actions/download-artifact@v4
         with:
-          name: Fililico-macOS
+          name: Fillico-macOS
           path: artifacts/macos
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            artifacts/windows/Fililico.exe
-            artifacts/linux/Fililico
-            artifacts/macos/Fililico
+            artifacts/windows/Fillico.exe
+            artifacts/linux/Fillico
+            artifacts/macos/Fillico
           body: |
-            # 🍭 Fililico ${{ github.ref_name }}
+            # 🍭 Fillico ${{ github.ref_name }}
 
             Application de filigranage multi-plateforme avec style Kawaii Pop !
 
             ## 📦 Téléchargements
 
-            - **Windows** : `Fililico.exe`
-            - **Linux** : `Fililico`
-            - **macOS** : `Fililico`
+            - **Windows** : `Fillico.exe`
+            - **Linux** : `Fillico`
+            - **macOS** : `Fillico`
 
             ## ✨ Fonctionnalités
 

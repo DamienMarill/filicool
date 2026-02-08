@@ -1,10 +1,10 @@
 #!/bin/bash
-# 🍭 Fililico - Linux AppImage Builder
+# 🍭 Fillico - Linux AppImage Builder
 # Script pour créer un AppImage
 
 set -e
 
-APP_NAME="Fililico"
+APP_NAME="Fillico"
 VERSION="1.0.0"
 ARCH="x86_64"
 
@@ -13,7 +13,7 @@ PINK='\033[0;35m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-echo -e "${PINK}🍭 Building Fililico AppImage...${NC}"
+echo -e "${PINK}🍭 Building Fillico AppImage...${NC}"
 
 # Dossiers
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -28,15 +28,15 @@ mkdir -p "$APPDIR/usr/share/applications"
 mkdir -p "$APPDIR/usr/share/icons/hicolor/256x256/apps"
 
 # Copier l'exécutable
-if [ -f "$PROJECT_ROOT/dist/Fililico" ]; then
-    cp "$PROJECT_ROOT/dist/Fililico" "$APPDIR/usr/bin/fililico"
+if [ -f "$PROJECT_ROOT/dist/Fillico" ]; then
+    cp "$PROJECT_ROOT/dist/Fillico" "$APPDIR/usr/bin/fillico"
 else
     echo "⚠️  Exécutable non trouvé, utilisation du script Python"
     echo "#!/bin/bash
 cd \"\$(dirname \"\$0\")/../..\"
-python3 main.py \"\$@\"" > "$APPDIR/usr/bin/fililico"
+python3 main.py \"\$@\"" > "$APPDIR/usr/bin/fillico"
 fi
-chmod +x "$APPDIR/usr/bin/fililico"
+chmod +x "$APPDIR/usr/bin/fillico"
 
 # Copier les assets
 cp -r "$PROJECT_ROOT/assets" "$APPDIR/usr/share/"
@@ -44,27 +44,27 @@ cp -r "$PROJECT_ROOT/web" "$APPDIR/usr/share/"
 
 # Icône
 if [ -f "$PROJECT_ROOT/assets/images/logo.png" ]; then
-    cp "$PROJECT_ROOT/assets/images/logo.png" "$APPDIR/usr/share/icons/hicolor/256x256/apps/fililico.png"
-    cp "$PROJECT_ROOT/assets/images/logo.png" "$APPDIR/fililico.png"
+    cp "$PROJECT_ROOT/assets/images/logo.png" "$APPDIR/usr/share/icons/hicolor/256x256/apps/fillico.png"
+    cp "$PROJECT_ROOT/assets/images/logo.png" "$APPDIR/fillico.png"
 fi
 
 # Desktop entry
-cat > "$APPDIR/fililico.desktop" << EOF
+cat > "$APPDIR/fillico.desktop" << EOF
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Fililico
+Name=Fillico
 GenericName=Watermark Tool
 Comment=🍭 Application de filigranage kawaii
-Exec=fililico %f
-Icon=fililico
+Exec=fillico %f
+Icon=fillico
 Terminal=false
 Categories=Graphics;Utility;
 MimeType=image/png;image/jpeg;image/bmp;image/gif;application/pdf;
 Keywords=watermark;filigrane;image;pdf;
 EOF
 
-cp "$APPDIR/fililico.desktop" "$APPDIR/usr/share/applications/"
+cp "$APPDIR/fillico.desktop" "$APPDIR/usr/share/applications/"
 
 # AppRun
 cat > "$APPDIR/AppRun" << 'EOF'
@@ -73,7 +73,7 @@ SELF=$(readlink -f "$0")
 HERE=${SELF%/*}
 export PATH="${HERE}/usr/bin/:${PATH}"
 export LD_LIBRARY_PATH="${HERE}/usr/lib/:${LD_LIBRARY_PATH}"
-exec "${HERE}/usr/bin/fililico" "$@"
+exec "${HERE}/usr/bin/fillico" "$@"
 EOF
 chmod +x "$APPDIR/AppRun"
 

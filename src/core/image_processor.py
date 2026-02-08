@@ -1,5 +1,5 @@
 """
-Fililico - Image Processor
+Fillico - Image Processor
 Gère le filigranage des fichiers images (PNG, JPG, JPEG, BMP, GIF)
 """
 

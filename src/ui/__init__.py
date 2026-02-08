@@ -1,5 +1,5 @@
 """
-Fililico - UI Package
+Fillico - UI Package
 """
 
 from .app import start_app

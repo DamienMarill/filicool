@@ -1,4 +1,4 @@
-# 🍭 Guide Utilisateur - Fililico
+# 🍭 Guide Utilisateur - Fillico
 
 > _Le filigrane n'est plus une corvée, c'est une friandise visuelle !_
 
@@ -19,7 +19,7 @@
 
 ### Windows
 
-1. Téléchargez `Fililico-Setup.exe` depuis les [Releases](https://github.com/marill-dev/fililico/releases)
+1. Téléchargez `Fillico-Setup.exe` depuis les [Releases](https://github.com/marill-dev/fillico/releases)
 2. Lancez l'installateur
 3. Cochez "Ajouter au menu contextuel" pour activer le clic droit
 4. Cliquez sur Installer !
@@ -29,8 +29,8 @@
 **AppImage (recommandé) :**
 
 ```bash
-chmod +x Fililico-*.AppImage
-./Fililico-*.AppImage
+chmod +x Fillico-*.AppImage
+./Fillico-*.AppImage
 ```
 
 **Intégration système :**
@@ -41,7 +41,7 @@ python src/installer/linux_context_menu.py install
 
 ### macOS
 
-1. Téléchargez `Fililico-*.dmg`
+1. Téléchargez `Fillico-*.dmg`
 2. Glissez l'application dans le dossier Applications
 3. Pour le menu contextuel : Préférences Système → Extensions → Finder
 
@@ -49,7 +49,7 @@ python src/installer/linux_context_menu.py install
 
 ## Premier Lancement
 
-Au lancement, Fililico affiche une interface kawaii avec :
+Au lancement, Fillico affiche une interface kawaii avec :
 
 - 🎀 **Header** : Logo et mascotte animée
 - 📁 **Zone de dépôt** : Glissez vos fichiers ici
@@ -171,7 +171,7 @@ Par défaut, dans le même dossier que l'original avec le suffixe `_watermarked`
 
 ## Support
 
-🐛 **Bug ?** Ouvrez une issue sur [GitHub](https://github.com/marill-dev/fililico/issues)
+🐛 **Bug ?** Ouvrez une issue sur [GitHub](https://github.com/marill-dev/fillico/issues)
 
 💡 **Idée ?** Les suggestions sont les bienvenues !
 
