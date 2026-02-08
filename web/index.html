@@ -10,7 +10,7 @@
     <title>🍭 Fililico - Filigraner Illico!</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="assets/images/logo.png" />
+    <link rel="icon" type="image/png" href="assets/images/mascot.png" />
 
     <!-- Styles -->
     <link rel="stylesheet" href="css/variables.css" />
@@ -23,177 +23,131 @@
       <header class="app-header">
         <div class="app-logo">
           <img src="assets/images/logo.png" alt="Fililico Logo" />
-          <h1 class="app-title">Fililico</h1>
         </div>
       </header>
 
       <!-- Main Content -->
       <main class="app-main">
-        <div class="main-grid">
-          <!-- Zone Fichiers (gauche) -->
-          <div class="zone-files">
-            <!-- Drop Zone -->
-            <section class="card card-pink">
-              <h2 class="section-title"><span>📂</span> Vos fichiers</h2>
-              <div id="dropZone" class="drop-zone">
-                <div class="app-mascot">
-                  <img
-                    id="mascot"
-                    class="mascot idle"
-                    src="assets/images/stamp_1.png"
-                    alt="Mascotte Fililico"
-                  />
-                </div>
-                <span class="drop-zone-text">Glissez vos fichiers ici</span>
-                <span class="drop-zone-hint">ou cliquez pour sélectionner</span>
-                <span class="drop-zone-formats"
-                  >PNG, JPG, JPEG, BMP, GIF, PDF</span
-                >
-                <input
-                  type="file"
-                  id="fileInput"
-                  class="visually-hidden"
-                  accept=".png,.jpg,.jpeg,.bmp,.gif,.pdf"
-                  multiple
-                />
-              </div>
-
-              <!-- File List -->
-              <div id="fileList" class="file-list hidden"></div>
-            </section>
-
-            <!-- Preview Zone -->
-            <section class="card">
-              <h2 class="section-title"><span>👁️</span> Aperçu</h2>
-
-              <div id="previewContainer" class="preview-container">
-                <div id="previewPlaceholder" class="preview-placeholder">
-                  <span class="preview-placeholder-icon">🖼️</span>
-                  <span>Sélectionnez un fichier pour voir l'aperçu</span>
-                </div>
+        <div class="main-content">
+          <!-- Card Principale: Fichiers + Configuration -->
+          <section class="card card-pink">
+            <h2 class="section-title"><span>📂</span> Vos fichiers</h2>
+            <div id="dropZone" class="drop-zone">
+              <div class="app-mascot">
                 <img
-                  id="previewImage"
-                  class="preview-image hidden"
-                  alt="Aperçu du filigrane"
+                  id="mascot"
+                  class="mascot idle"
+                  src="assets/images/stamp_1.png"
+                  alt="Mascotte Fililico"
                 />
               </div>
-            </section>
+              <span class="drop-zone-text">Glissez vos fichiers ici</span>
+              <span class="drop-zone-hint">ou cliquez pour sélectionner</span>
+              <span class="drop-zone-formats"
+                >PNG, JPG, JPEG, BMP, GIF, PDF</span
+              >
+              <input
+                type="file"
+                id="fileInput"
+                class="visually-hidden"
+                accept=".png,.jpg,.jpeg,.bmp,.gif,.pdf"
+                multiple
+              />
+            </div>
 
-            <!-- Results Zone -->
-            <section id="resultsSection" class="card hidden">
-              <h2 class="section-title"><span>✨</span> Résultats</h2>
+            <!-- File List -->
+            <div id="fileList" class="file-list hidden"></div>
 
-              <div id="resultsList" class="file-list"></div>
-            </section>
-          </div>
+            <!-- Séparateur -->
+            <hr style="border: none; border-top: 2px dashed var(--cotton-candy); margin: var(--space-4) 0;">
 
-          <!-- Zone Configuration (droite) -->
-          <aside class="zone-config">
-            <section class="card card-purple">
-              <h2 class="section-title"><span>⚙️</span> Configuration</h2>
+            <!-- Configuration intégrée -->
+            <h2 class="section-title"><span>⚙️</span> Configuration</h2>
 
-              <!-- Texte du filigrane -->
-              <div class="form-group">
-                <label class="label" for="watermarkText"
-                  >Texte du filigrane</label
-                >
+            <!-- Texte du filigrane -->
+            <div class="form-group">
+              <label class="label" for="watermarkText">Texte du filigrane</label>
+              <input
+                type="text"
+                id="watermarkText"
+                class="input"
+                placeholder="Ex: CONFIDENTIEL"
+                value="CONFIDENTIEL"
+              />
+            </div>
+
+            <!-- Opacité (caché) -->
+            <div class="form-group" style="margin-top: var(--space-4); display: none">
+              <label class="label" for="opacitySlider">
+                Opacité: <span id="opacityValue">50</span>%
+              </label>
+              <input
+                type="range"
+                id="opacitySlider"
+                min="10"
+                max="90"
+                value="20"
+                style="width: 100%"
+              />
+            </div>
+
+            <!-- Dossier de sortie -->
+            <div class="form-group" style="margin-top: var(--space-4)">
+              <label class="label" for="outputFolder">Dossier de sortie</label>
+              <div style="display: flex; gap: 8px">
                 <input
                   type="text"
-                  id="watermarkText"
+                  id="outputFolder"
                   class="input"
-                  placeholder="Ex: CONFIDENTIEL"
-                  value="CONFIDENTIEL"
+                  placeholder="Dossier du fichier original"
+                  style="flex: 1"
+                  readonly
                 />
-              </div>
-
-              <!-- Opacité -->
-              <div class="form-group" style="margin-top: var(--space-4); display: none">
-                <label class="label" for="opacitySlider">
-                  Opacité: <span id="opacityValue">50</span>%
-                </label>
-                <input
-                  type="range"
-                  id="opacitySlider"
-                  min="10"
-                  max="90"
-                  value="20"
-                  style="width: 100%"
-                />
-              </div>
-
-              <!-- Dossier de sortie -->
-              <div class="form-group" style="margin-top: var(--space-4)">
-                <label class="label" for="outputFolder"
-                  >Dossier de sortie</label
+                <button
+                  type="button"
+                  id="browseOutputBtn"
+                  class="btn btn-secondary"
+                  title="Parcourir"
                 >
-                <div style="display: flex; gap: 8px">
-                  <input
-                    type="text"
-                    id="outputFolder"
-                    class="input"
-                    placeholder="Dossier du fichier original"
-                    style="flex: 1"
-                    readonly
-                  />
-                  <button
-                    type="button"
-                    id="browseOutputBtn"
-                    class="btn btn-secondary"
-                    title="Parcourir"
-                  >
-                    📁
-                  </button>
-                </div>
-                <small style="color: var(--magic-berry); font-size: 0.75rem; margin-top: 4px; display: block">
-                  Auto-détecté depuis vos fichiers • Cliquez 📁 pour changer
-                </small>
+                  📁
+                </button>
               </div>
-            </section>
+              <small style="color: var(--magic-berry); font-size: 0.75rem; margin-top: 4px; display: block">
+                Auto-détecté depuis vos fichiers • Cliquez 📁 pour changer
+              </small>
+            </div>
 
             <!-- Bouton d'action -->
-            <button id="processBtn" class="btn btn-primary btn-lg" disabled>
+            <button id="processBtn" class="btn btn-primary btn-lg" style="margin-top: var(--space-4); width: 100%;" disabled>
               <span>🍬</span> Filigraner Illico!
             </button>
+          </section>
 
-            <!-- Progression -->
-            <div id="progressSection" class="card hidden">
-              <div class="progress-bar">
-                <div
-                  id="progressFill"
-                  class="progress-bar-fill"
-                  style="width: 0%"
-                ></div>
-              </div>
-              <p
-                id="progressText"
-                style="text-align: center; margin-top: var(--space-2)"
-              >
-                Traitement en cours...
-              </p>
-            </div>
+          <!-- Results Zone -->
+          <section id="resultsSection" class="card hidden">
+            <h2 class="section-title"><span>✨</span> Résultats</h2>
 
-            <!-- Stats -->
-            <div class="card">
-              <div style="text-align: center">
-                <span style="font-size: 2rem">📊</span>
-                <p class="subtitle">Fichiers sélectionnés</p>
-                <p id="fileCount" class="title" style="font-size: 2rem">0</p>
-              </div>
+            <div id="resultsList" class="file-list"></div>
+          </section>
+
+          <!-- Progression (caché par défaut) -->
+          <div id="progressSection" class="card hidden">
+            <div class="progress-bar">
+              <div
+                id="progressFill"
+                class="progress-bar-fill"
+                style="width: 0%"
+              ></div>
             </div>
-          </aside>
+            <p
+              id="progressText"
+              style="text-align: center; margin-top: var(--space-2)"
+            >
+              Traitement en cours...
+            </p>
+          </div>
         </div>
       </main>
-
-      <!-- Footer -->
-      <footer class="app-footer">
-        <p>
-          🍭 Fililico v1.0.0 — Fait avec 💖 par
-          <a href="https://marill.dev" target="_blank">Damien Marill</a>
-        </p>
-        <p style="font-size: 0.75rem; margin-top: 4px">
-          Squish, Pop, Sparkle! ✨
-        </p>
-      </footer>
     </div>
 
     <!-- Scripts -->

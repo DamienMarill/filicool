@@ -17,9 +17,6 @@ const elements = {
   dropZone: document.getElementById("dropZone"),
   fileInput: document.getElementById("fileInput"),
   fileList: document.getElementById("fileList"),
-  previewContainer: document.getElementById("previewContainer"),
-  previewPlaceholder: document.getElementById("previewPlaceholder"),
-  previewImage: document.getElementById("previewImage"),
   resultsSection: document.getElementById("resultsSection"),
   resultsList: document.getElementById("resultsList"),
   watermarkText: document.getElementById("watermarkText"),
@@ -30,7 +27,6 @@ const elements = {
   progressSection: document.getElementById("progressSection"),
   progressFill: document.getElementById("progressFill"),
   progressText: document.getElementById("progressText"),
-  fileCount: document.getElementById("fileCount"),
   mascot: document.getElementById("mascot"),
 };
 
@@ -200,13 +196,7 @@ async function handleFilesFromPython(filePaths) {
 
   // Update UI
   updateFileList();
-  updateFileCount();
   updateProcessButton();
-
-  // Select first file if none selected
-  if (state.selectedFileIndex === null && state.files.length > 0) {
-    selectFile(0);
-  }
 
   showNotification(`${newFiles.length} fichier(s) ajouté(s) !`, "success");
 }
@@ -232,40 +222,72 @@ async function handleFiles(files) {
     return;
   }
 
-  // Add to state
-  state.files.push(...supportedFiles);
-
-  // Auto-set output folder if not manually set by user
-  if (!state.userSetOutputFolder && supportedFiles.length > 0) {
-    const firstFile = supportedFiles[0];
-    // Get the directory of the first file via Eel or fallback
-    if (typeof eel !== "undefined" && firstFile.path) {
+  // Les fichiers browser n'ont pas de path réel - on doit les uploader vers Python
+  if (typeof eel !== "undefined") {
+    showNotification("Upload des fichiers...", "info");
+    
+    for (const file of supportedFiles) {
       try {
-        const folder = await eel.get_file_directory(firstFile.path)();
-        if (folder) {
-          elements.outputFolder.value = folder;
+        // Lire le fichier en base64
+        const base64 = await readFileAsBase64(file);
+        
+        // Envoyer à Python pour sauvegarder dans un dossier temporaire
+        const result = await eel.upload_file(file.name, base64)();
+        
+        if (result.success) {
+          // Ajouter le fichier avec le vrai chemin retourné par Python
+          state.files.push({
+            path: result.path,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            status: "pending",
+            progress: "",
+          });
+        } else {
+          showNotification(`Erreur upload ${file.name}: ${result.error}`, "error");
         }
       } catch (e) {
-        console.warn("Could not get file directory:", e);
+        console.error("Upload error:", e);
+        showNotification(`Erreur upload ${file.name}`, "error");
       }
     }
+    
+    // Update UI
+    updateFileList();
+    updateProcessButton();
+    
+    showNotification(`${state.files.length} fichier(s) prêt(s) !`, "success");
+  } else {
+    // Mode dev sans Eel - juste afficher les fichiers sans path
+    state.files.push(...supportedFiles.map(f => ({
+      path: null,
+      name: f.name,
+      size: f.size,
+      type: f.type,
+      status: "pending",
+      progress: "",
+    })));
+    updateFileList();
+    updateProcessButton();
+    showNotification(`${supportedFiles.length} fichier(s) ajouté(s) !`, "success");
   }
+}
 
-  // Update UI
-  updateFileList();
-  updateFileCount();
-  updateProcessButton();
-
-  // Select first file if none selected
-  if (state.selectedFileIndex === null && state.files.length > 0) {
-    selectFile(0);
-  }
-
-  // Show notification
-  showNotification(
-    `${supportedFiles.length} fichier(s) ajouté(s) !`,
-    "success",
-  );
+/**
+ * Lit un fichier en base64
+ */
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      // Retirer le préfixe data:xxx;base64,
+      const base64 = reader.result.split(",")[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 /**
@@ -315,10 +337,14 @@ function updateFileList() {
       ${!isProcessing ? `<button class="file-item-remove" data-index="${index}" title="Retirer">✕</button>` : ""}
     `;
 
-    // Click to select
+    // Click to select (juste pour le style visuel)
     item.addEventListener("click", (e) => {
       if (!e.target.classList.contains("file-item-remove")) {
-        selectFile(index);
+        state.selectedFileIndex = index;
+        // Update UI selection
+        elements.fileList.querySelectorAll(".file-item").forEach((el, i) => {
+          el.style.borderColor = i === index ? "var(--bubblegum-pink)" : "var(--magic-berry-light)";
+        });
       }
     });
 
@@ -334,111 +360,26 @@ function updateFileList() {
   });
 }
 
-function selectFile(index) {
-  state.selectedFileIndex = index;
-  const file = state.files[index];
 
-  // Update UI selection
-  elements.fileList.querySelectorAll(".file-item").forEach((item, i) => {
-    item.style.borderColor =
-      i === index ? "var(--bubblegum-pink)" : "var(--magic-berry-light)";
-  });
-
-  // Generate preview
-  generatePreview(file);
-}
 
 function removeFile(index) {
   state.files.splice(index, 1);
 
   // Adjust selection
   if (state.selectedFileIndex === index) {
-    state.selectedFileIndex =
-      state.files.length > 0 ? Math.min(index, state.files.length - 1) : null;
+    state.selectedFileIndex = null;
   } else if (state.selectedFileIndex > index) {
     state.selectedFileIndex--;
   }
 
   updateFileList();
-  updateFileCount();
   updateProcessButton();
-
-  // Update preview
-  if (state.selectedFileIndex !== null) {
-    selectFile(state.selectedFileIndex);
-  } else {
-    clearPreview();
-  }
-}
-
-function updateFileCount() {
-  elements.fileCount.textContent = state.files.length;
 }
 
 function updateProcessButton() {
   elements.processBtn.disabled = state.files.length === 0 || state.isProcessing;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// PREVIEW
-// ═══════════════════════════════════════════════════════════════
-
-async function generatePreview(file) {
-  const isPdf = file.name.toLowerCase().endsWith(".pdf");
-
-  if (isPdf) {
-    // PDF preview - just show icon
-    elements.previewPlaceholder.innerHTML = `
-      <span class="preview-placeholder-icon">📄</span>
-      <span>${file.name}</span>
-      <span style="font-size: 0.875rem; color: var(--magic-berry);">
-        Aperçu PDF non disponible
-      </span>
-    `;
-    elements.previewPlaceholder.classList.remove("hidden");
-    elements.previewImage.classList.add("hidden");
-  } else {
-    // Image preview - use Eel to get base64 from real path
-    if (typeof eel !== "undefined" && file.path) {
-      try {
-        const base64 = await eel.get_image_preview(file.path)();
-        if (base64) {
-          elements.previewImage.src = base64;
-          elements.previewImage.classList.remove("hidden");
-          elements.previewPlaceholder.classList.add("hidden");
-        } else {
-          showPreviewError(file.name);
-        }
-      } catch (e) {
-        console.error("Preview error:", e);
-        showPreviewError(file.name);
-      }
-    } else {
-      showPreviewError(file.name);
-    }
-  }
-}
-
-function showPreviewError(fileName) {
-  elements.previewPlaceholder.innerHTML = `
-    <span class="preview-placeholder-icon">🖼️</span>
-    <span>${fileName}</span>
-    <span style="font-size: 0.875rem; color: var(--magic-berry);">
-      Aperçu non disponible
-    </span>
-  `;
-  elements.previewPlaceholder.classList.remove("hidden");
-  elements.previewImage.classList.add("hidden");
-}
-
-function clearPreview() {
-  elements.previewPlaceholder.innerHTML = `
-    <span class="preview-placeholder-icon">🖼️</span>
-    <span>Sélectionnez un fichier pour voir l'aperçu</span>
-  `;
-  elements.previewPlaceholder.classList.remove("hidden");
-  elements.previewImage.classList.add("hidden");
-}
 
 // ═══════════════════════════════════════════════════════════════
 // PROCESSING (Eel Integration Point)
@@ -478,6 +419,10 @@ async function processFiles() {
       // Call Eel function (or simulate)
       let result;
       if (typeof eel !== "undefined") {
+        // Vérifier que le fichier a un chemin réel (sélectionné via Python, pas drag&drop navigateur)
+        if (!file.path) {
+          throw new Error("Fichier sans chemin réel. Utilisez le sélecteur de fichiers.");
+        }
         // Real Eel call
         result = await eel.process_file(
           file.path,
@@ -579,8 +524,6 @@ function showResults(results) {
   state.files = [];
   state.selectedFileIndex = null;
   updateFileList();
-  updateFileCount();
-  clearPreview();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -720,11 +663,23 @@ function onPdfProgress(filePath, currentPage, totalPages) {
 // INIT
 // ═══════════════════════════════════════════════════════════════
 
-function init() {
+async function init() {
   initDragDrop();
   initOpacitySlider();
   initOutputFolderPicker();
   initProcessButton();
+
+  // Définir le dossier de sortie par défaut (home directory)
+  if (typeof eel !== "undefined") {
+    try {
+      const defaultFolder = await eel.get_default_output_folder()();
+      if (defaultFolder) {
+        elements.outputFolder.value = defaultFolder;
+      }
+    } catch (e) {
+      console.warn("Could not get default output folder:", e);
+    }
+  }
 
   console.log("🍭 Fililico initialized!");
 }

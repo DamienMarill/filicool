@@ -15,11 +15,8 @@
 .app-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: var(--space-4) var(--space-6);
-  background: var(--frosted-glass);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .app-logo {
@@ -29,8 +26,14 @@
 }
 
 .app-logo img {
-  height: 48px;
+  height: 8rem;
   width: auto;
+  filter: drop-shadow(0 0 3px var(--bubblegum-pink)) drop-shadow(0 0 5px #FFFFFF);
+  -webkit-filter: drop-shadow(0 0 3px var(--bubblegum-pink)) drop-shadow(0 0 5px #FFFFFF);
+  -moz-filter: drop-shadow(0 0 3px var(--bubblegum-pink)) drop-shadow(0 0 5px #FFFFFF);
+  -o-filter: drop-shadow(0 0 3px var(--bubblegum-pink)) drop-shadow(0 0 5px #FFFFFF);
+  -ms-filter: drop-shadow(0 0 3px var(--bubblegum-pink)) drop-shadow(0 0 5px #FFFFFF);
+
 }
 
 .app-title {
@@ -42,17 +45,13 @@
   background-clip: text;
 }
 
-.app-mascot {
-  margin-left: var(--space-4);
-}
-
 .app-main {
   flex: 1;
   padding: var(--space-6);
 }
 
 /* ═══════════════════════════════════════════════════════════════
- * GRID LAYOUT
+ * GRID LAYOUT (rétrocompatibilité)
  * ═══════════════════════════════════════════════════════════════ */
 .main-grid {
   display: grid;
@@ -66,6 +65,17 @@
   .main-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * SINGLE COLUMN LAYOUT
+ * ═══════════════════════════════════════════════════════════════ */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 /* ═══════════════════════════════════════════════════════════════

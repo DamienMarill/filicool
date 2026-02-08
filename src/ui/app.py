@@ -32,6 +32,50 @@ engine.set_progress_callback(_pdf_progress_callback)
 
 
 @eel.expose
+def get_default_output_folder() -> str:
+    """Retourne le dossier home de l'utilisateur comme dossier de sortie par défaut."""
+    return str(Path.home())
+
+
+@eel.expose
+def upload_file(filename: str, base64_content: str) -> dict:
+    """
+    Reçoit un fichier en base64 (drag&drop) et le sauvegarde dans un dossier temporaire.
+    
+    Args:
+        filename: Nom du fichier original
+        base64_content: Contenu du fichier encodé en base64
+        
+    Returns:
+        Dictionnaire avec le chemin du fichier sauvegardé
+    """
+    import base64
+    import tempfile
+    
+    try:
+        # Créer un dossier temporaire pour les uploads
+        temp_dir = Path(tempfile.gettempdir()) / "fililico_uploads"
+        temp_dir.mkdir(exist_ok=True)
+        
+        # Décoder et sauvegarder le fichier
+        file_data = base64.b64decode(base64_content)
+        file_path = temp_dir / filename
+        
+        with open(file_path, "wb") as f:
+            f.write(file_data)
+        
+        return {
+            "success": True,
+            "path": str(file_path),
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+        }
+
+
+@eel.expose
 def process_file(
     file_path: str,
     watermark_text: str = "CONFIDENTIEL",
@@ -201,9 +245,9 @@ def select_files() -> list:
     files = filedialog.askopenfilenames(
         title="Sélectionner des fichiers à filigraner",
         filetypes=[
+            ("Tous les fichiers supportés", "*.png *.jpg *.jpeg *.bmp *.gif *.pdf"),
             ("Images", "*.png *.jpg *.jpeg *.bmp *.gif"),
             ("PDF", "*.pdf"),
-            ("Tous les fichiers supportés", "*.png *.jpg *.jpeg *.bmp *.gif *.pdf"),
         ]
     )
     
