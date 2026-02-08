@@ -33,23 +33,23 @@ class TestImageProcessor:
         """Vérifie l'initialisation avec les valeurs par défaut."""
         processor = ImageProcessor()
 
-        assert processor.text == "CONFIDENTIEL"
-        assert processor.opacity == 0.5
+        assert processor.renderer.text == "CONFIDENTIEL"
+        assert processor.renderer.opacity == 0.3
 
     def test_init_with_custom_values(self):
         """Vérifie l'initialisation avec des valeurs personnalisées."""
         processor = ImageProcessor(text="TEST", opacity=0.8)
 
-        assert processor.text == "TEST"
-        assert processor.opacity == 0.8
+        assert processor.renderer.text == "TEST"
+        assert processor.renderer.opacity == 0.8
 
     def test_opacity_clamping(self):
         """Vérifie que l'opacité est limitée entre 0 et 1."""
         processor = ImageProcessor(opacity=1.5)
-        assert processor.opacity == 1.0
+        assert processor.renderer.opacity == 1.0
 
         processor = ImageProcessor(opacity=-0.5)
-        assert processor.opacity == 0.0
+        assert processor.renderer.opacity == 0.0
 
     def test_process_file_not_found(self):
         """Vérifie la gestion des fichiers inexistants."""
@@ -88,8 +88,8 @@ class TestPDFProcessor:
         """Vérifie l'initialisation avec les valeurs par défaut."""
         processor = PDFProcessor()
 
-        assert processor.text == "CONFIDENTIEL"
-        assert processor.opacity == 0.3
+        assert processor.renderer.text == "CONFIDENTIEL"
+        assert processor.renderer.opacity == 0.3
 
     def test_process_file_not_found(self):
         """Vérifie la gestion des fichiers inexistants."""
@@ -107,7 +107,7 @@ class TestWatermarkEngine:
         engine = WatermarkEngine()
 
         assert engine.text == "CONFIDENTIEL"
-        assert engine.opacity == 0.5
+        assert engine.opacity == 0.3
 
     def test_init_with_custom_values(self):
         """Vérifie l'initialisation avec des valeurs personnalisées."""
@@ -162,10 +162,15 @@ class TestWatermarkEngine:
         engine = WatermarkEngine(text="INITIAL")
         assert engine.text == "INITIAL"
 
+        # Force processor creation
+        engine._ensure_processors()
+
         engine.text = "UPDATED"
         assert engine.text == "UPDATED"
-        assert engine._image_processor.text == "UPDATED"
-        assert engine._pdf_processor.text == "UPDATED"
+        # Processors are lazily recreated, force update
+        engine._ensure_processors()
+        assert engine._image_processor.renderer.text == "UPDATED"
+        assert engine._pdf_processor.renderer.text == "UPDATED"
 
     def test_opacity_property_updates_processors(self):
         """Vérifie que modifier l'opacité met à jour les processeurs."""
@@ -174,8 +179,10 @@ class TestWatermarkEngine:
 
         engine.opacity = 0.8
         assert engine.opacity == 0.8
-        assert engine._image_processor.opacity == 0.8
-        assert engine._pdf_processor.opacity == 0.8
+        # Force processor creation after opacity change
+        engine._ensure_processors()
+        assert engine._image_processor.renderer.opacity == 0.8
+        assert engine._pdf_processor.renderer.opacity == 0.8
 
     def test_process_unsupported_file(self):
         """Vérifie le traitement d'un fichier non supporté."""
