@@ -61,6 +61,9 @@ jobs:
         run: |
           python -m PyInstaller fillico.spec --clean
 
+      - name: Install NSIS
+        run: choco install nsis -y
+
       - name: Create installer with NSIS
         shell: pwsh
         run: |
@@ -107,8 +110,9 @@ jobs:
 
             DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Fillico"
           SectionEnd
-          "@ | Out-File -FilePath installer.nsi -Encoding UTF8
+          "@ | Out-File -FilePath installer.nsi -Encoding ASCII
 
+          $env:PATH += ";C:\Program Files (x86)\NSIS"
           makensis installer.nsi
 
       - name: Upload artifact
