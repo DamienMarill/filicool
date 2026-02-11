@@ -287,6 +287,10 @@ jobs:
         run: |
           python -m PyInstaller fillico.spec --clean
 
+      - name: Free disk space
+        run: |
+          rm -rf build/
+
       - name: Create DMG installer
         run: |
           mkdir -p dmg-content
