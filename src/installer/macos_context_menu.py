@@ -23,6 +23,7 @@ class MacOSContextMenuInstaller:
         "public.jpeg",
         "com.compuserve.gif",
         "public.bmp",
+        "public.tiff",
         "com.adobe.pdf",
     ]
 
@@ -67,7 +68,7 @@ class MacOSContextMenuInstaller:
         # Info.plist
         info_plist = {
             "CFBundleIdentifier": "dev.marill.fillico.quickaction",
-            "CFBundleName": "🍭 Ajouter un filigrane",
+            "CFBundleName": "Ajouter un filigrane",
             "CFBundleShortVersionString": "1.0",
             "CFBundleVersion": "1",
             "NSServices": [

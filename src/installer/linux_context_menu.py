@@ -84,11 +84,18 @@ class LinuxContextMenuInstaller:
 # 🍭 Fillico - Script Nautilus
 # Ajoute un filigrane aux fichiers sélectionnés
 
+# Extensions supportées
+SUPPORTED_EXT="png jpg jpeg bmp gif pdf"
+
 # Récupérer les fichiers sélectionnés
-IFS=$'\\n'
+IFS=$'\n'
 for file in $NAUTILUS_SCRIPT_SELECTED_FILE_PATHS; do
     if [[ -f "$file" ]]; then
-        python3 "{self.app_path}" "$file"
+        ext="${{file##*.}}"
+        ext="${{ext,,}}"  # lowercase
+        if echo "$SUPPORTED_EXT" | grep -qw "$ext"; then
+            python3 "{self.app_path}" "$file"
+        fi
     fi
 done
 '''
@@ -121,7 +128,7 @@ MimeType=image/png;image/jpeg;image/bmp;image/gif;application/pdf;
 Actions=watermark
 
 [Desktop Action watermark]
-Name=🍭 Ajouter un filigrane (Fillico)
+Name=Ajouter un filigrane (Fillico)
 Icon=applications-graphics
 Exec=python3 "{self.app_path}" %f
 '''

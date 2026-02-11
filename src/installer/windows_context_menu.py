@@ -1,6 +1,10 @@
-"""
+r"""
 🍭 Fillico - Windows Context Menu Integration
 Script d'installation/désinstallation du menu contextuel Windows
+
+Utilise HKEY_CURRENT_USER\Software\Classes\SystemFileAssociations
+pour enregistrer le menu contextuel par extension de fichier.
+Ne nécessite PAS de droits administrateur.
 """
 
 import sys
@@ -13,14 +17,21 @@ class WindowsContextMenuInstaller:
     """
     Gère l'installation du menu contextuel Windows pour Fillico.
     Ajoute "Ajouter un filigrane" au clic droit sur les fichiers supportés.
+
+    Utilise SystemFileAssociations sous HKCU pour :
+    - Ne pas nécessiter de droits administrateur
+    - Cibler uniquement les extensions supportées
+    - Persister même si l'association par défaut change
     """
 
     # Extensions supportées
     SUPPORTED_EXTENSIONS = [".png", ".jpg", ".jpeg", ".bmp", ".gif", ".pdf"]
 
-    # Clé de registre pour le shell
-    SHELL_KEY = r"*\shell\Fillico"
-    COMMAND_KEY = r"*\shell\Fillico\command"
+    # Nom du verbe dans le shell
+    VERB_NAME = "Fillico"
+
+    # Texte affiché dans le menu contextuel
+    DISPLAY_TEXT = "Ajouter un filigrane"
 
     def __init__(self):
         """Initialise l'installateur."""
@@ -28,104 +39,170 @@ class WindowsContextMenuInstaller:
 
     def _get_app_path(self) -> Path:
         """Retourne le chemin de l'exécutable/script."""
-        # En développement, utiliser le script Python
-        quick_mode_path = Path(__file__).parent / "quick_mode.py"
+        # En développement, utiliser le script Python quick_mode.py
+        quick_mode_path = Path(__file__).parent.parent / "ui" / "quick_mode.py"
         if quick_mode_path.exists():
             return quick_mode_path
 
         # En production, chercher l'exécutable
-        exe_path = Path(sys.executable).parent / "fillico.exe"
+        exe_path = Path(sys.executable).parent / "Fillico.exe"
         if exe_path.exists():
             return exe_path
 
+        # Fallback sur le script même s'il n'existe pas encore
         return quick_mode_path
 
     def _get_python_path(self) -> str:
         """Retourne le chemin de Python."""
         return sys.executable
 
+    def _get_icon_path(self) -> str:
+        """Retourne le chemin de l'icône de l'application."""
+        # Chercher fillico.ico à la racine du projet
+        icon_path = Path(__file__).parent.parent.parent / "fillico.ico"
+        if icon_path.exists():
+            return str(icon_path.resolve())
+
+        # Fallback sur assets
+        icon_path = Path(__file__).parent.parent.parent / "assets" / "icons" / "fillico.ico"
+        if icon_path.exists():
+            return str(icon_path.resolve())
+
+        return ""
+
+    def _get_registry_key_path(self, ext: str) -> str:
+        r"""
+        Retourne le chemin de la clé de registre pour une extension donnée.
+
+        Utilise SystemFileAssociations sous HKCU :
+        HKCU\Software\Classes\SystemFileAssociations\.ext\shell\Fillico
+        """
+        return rf"Software\Classes\SystemFileAssociations\{ext}\shell\{self.VERB_NAME}"
+
+    def _get_command(self) -> str:
+        """Retourne la commande à exécuter."""
+        if self.app_path.suffix == ".py":
+            # Mode développement - utiliser Python
+            return f'"{self._get_python_path()}" "{self.app_path.resolve()}" "%1"'
+        else:
+            # Mode production - exécutable direct
+            return f'"{self.app_path.resolve()}" --quick "%1"'
+
     def install(self) -> bool:
         """
-        Installe le menu contextuel Windows.
+        Installe le menu contextuel Windows pour chaque extension supportée.
 
         Returns:
             True si l'installation a réussi
         """
         try:
-            # Créer la clé principale du shell
-            with winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, self.SHELL_KEY) as key:
-                # Nom affiché dans le menu contextuel
-                winreg.SetValue(key, "", winreg.REG_SZ, "🍭 Ajouter un filigrane")
+            command = self._get_command()
+            icon_path = self._get_icon_path()
+            installed_count = 0
 
-                # Icône (utiliser l'icône de l'app si disponible)
-                icon_path = Path(__file__).parent.parent.parent / "assets" / "images" / "logo.ico"
-                if icon_path.exists():
-                    winreg.SetValueEx(key, "Icon", 0, winreg.REG_SZ, str(icon_path))
+            for ext in self.SUPPORTED_EXTENSIONS:
+                key_path = self._get_registry_key_path(ext)
+                command_key_path = key_path + r"\command"
 
-            # Créer la commande
-            with winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, self.COMMAND_KEY) as key:
-                if self.app_path.suffix == ".py":
-                    # Mode développement - utiliser Python
-                    command = f'"{self._get_python_path()}" "{self.app_path}" "%1"'
-                else:
-                    # Mode production - exécutable direct
-                    command = f'"{self.app_path}" "%1"'
+                try:
+                    # Créer la clé principale du shell pour cette extension
+                    with winreg.CreateKey(winreg.HKEY_CURRENT_USER, key_path) as key:
+                        # Nom affiché dans le menu contextuel
+                        winreg.SetValue(key, "", winreg.REG_SZ, self.DISPLAY_TEXT)
 
-                winreg.SetValue(key, "", winreg.REG_SZ, command)
+                        # Icône
+                        if icon_path:
+                            winreg.SetValueEx(key, "Icon", 0, winreg.REG_SZ, icon_path)
 
-            print("✅ Menu contextuel installé avec succès!")
-            print(f"   Commande: {command}")
-            return True
+                    # Créer la clé command
+                    with winreg.CreateKey(winreg.HKEY_CURRENT_USER, command_key_path) as key:
+                        winreg.SetValue(key, "", winreg.REG_SZ, command)
 
-        except PermissionError:
-            print("❌ Erreur: Exécutez ce script en tant qu'administrateur!")
-            return False
+                    installed_count += 1
+                    print(f"   ✅ {ext}")
+
+                except Exception as e:
+                    print(f"   ❌ {ext} : {e}")
+
+            if installed_count > 0:
+                print(f"\n✅ Menu contextuel installé pour {installed_count}/{len(self.SUPPORTED_EXTENSIONS)} extensions!")
+                print(f"   Commande: {command}")
+                print(f"\n💡 Ouvrez l'Explorateur et faites un clic droit sur une image ou un PDF.")
+                return True
+            else:
+                print("❌ Aucune extension n'a pu être installée")
+                return False
+
         except Exception as e:
             print(f"❌ Erreur lors de l'installation: {e}")
             return False
 
     def uninstall(self) -> bool:
         """
-        Désinstalle le menu contextuel Windows.
+        Désinstalle le menu contextuel Windows pour toutes les extensions.
 
         Returns:
             True si la désinstallation a réussi
         """
-        try:
-            # Supprimer la clé command d'abord
+        removed_count = 0
+
+        for ext in self.SUPPORTED_EXTENSIONS:
+            key_path = self._get_registry_key_path(ext)
+            command_key_path = key_path + r"\command"
+
+            # Supprimer la clé command d'abord (les sous-clés doivent être supprimées avant le parent)
             try:
-                winreg.DeleteKey(winreg.HKEY_CLASSES_ROOT, self.COMMAND_KEY)
+                winreg.DeleteKey(winreg.HKEY_CURRENT_USER, command_key_path)
             except FileNotFoundError:
                 pass
+            except Exception as e:
+                print(f"   ⚠️ {ext}/command : {e}")
 
             # Puis la clé principale
             try:
-                winreg.DeleteKey(winreg.HKEY_CLASSES_ROOT, self.SHELL_KEY)
+                winreg.DeleteKey(winreg.HKEY_CURRENT_USER, key_path)
+                removed_count += 1
+                print(f"   🗑️  {ext}")
             except FileNotFoundError:
                 pass
+            except Exception as e:
+                print(f"   ⚠️ {ext} : {e}")
 
-            print("✅ Menu contextuel désinstallé avec succès!")
-            return True
-
-        except PermissionError:
-            print("❌ Erreur: Exécutez ce script en tant qu'administrateur!")
-            return False
-        except Exception as e:
-            print(f"❌ Erreur lors de la désinstallation: {e}")
-            return False
+        print(f"\n✅ Menu contextuel désinstallé ({removed_count} extensions nettoyées)")
+        return True
 
     def is_installed(self) -> bool:
         """
-        Vérifie si le menu contextuel est installé.
+        Vérifie si le menu contextuel est installé (au moins une extension).
 
         Returns:
             True si installé
         """
-        try:
-            winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, self.SHELL_KEY)
-            return True
-        except FileNotFoundError:
-            return False
+        for ext in self.SUPPORTED_EXTENSIONS:
+            key_path = self._get_registry_key_path(ext)
+            try:
+                winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path)
+                return True
+            except FileNotFoundError:
+                continue
+        return False
+
+    def status(self) -> dict:
+        """
+        Retourne l'état détaillé de l'installation.
+
+        Returns:
+            Dictionnaire {extension: bool (installée ou non)}
+        """
+        result = {}
+        for ext in self.SUPPORTED_EXTENSIONS:
+            key_path = self._get_registry_key_path(ext)
+            try:
+                winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path)
+                result[ext] = True
+            except FileNotFoundError:
+                result[ext] = False
+        return result
 
 
 def main():
@@ -145,14 +222,26 @@ def main():
     installer = WindowsContextMenuInstaller()
 
     if args.action == "install":
+        print("🍭 Fillico - Installation du menu contextuel Windows")
+        print(f"   Python: {installer._get_python_path()}")
+        print(f"   Script: {installer.app_path}")
+        print(f"   Icône:  {installer._get_icon_path() or '(aucune)'}")
+        print()
         installer.install()
     elif args.action == "uninstall":
+        print("🍭 Fillico - Désinstallation du menu contextuel Windows")
         installer.uninstall()
     elif args.action == "status":
-        if installer.is_installed():
-            print("✅ Le menu contextuel Fillico est installé")
+        print("🍭 Fillico - État du menu contextuel Windows\n")
+        status = installer.status()
+        for ext, installed in status.items():
+            icon = "✅" if installed else "❌"
+            print(f"   {icon} {ext}")
+
+        if any(status.values()):
+            print(f"\n📍 Registre: HKCU\\Software\\Classes\\SystemFileAssociations\\<ext>\\shell\\Fillico")
         else:
-            print("❌ Le menu contextuel Fillico n'est pas installé")
+            print("\n❌ Le menu contextuel n'est pas installé. Lancez 'install' pour l'installer.")
 
 
 if __name__ == "__main__":
