@@ -77,7 +77,7 @@ jobs:
           !include "MUI2.nsh"
 
           Name "Fillico"
-          OutFile "dist\Fillico-Setup.exe"
+          OutFile "dist\fillico-$version-windows.exe"
           InstallDir "`$LOCALAPPDATA\Fillico"
           RequestExecutionLevel user
 
@@ -156,7 +156,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Fillico-Windows
-          path: dist/Fillico-Setup.exe
+          path: dist/fillico-*-windows.exe
 
   # ═══════════════════════════════════════════════════════════════
   # BUILD LINUX
@@ -253,13 +253,13 @@ jobs:
           POSTRM
           chmod 755 fillico-deb/DEBIAN/postrm
 
-          dpkg-deb --build fillico-deb "dist/Fillico-${VERSION}-amd64.deb"
+          dpkg-deb --build fillico-deb "dist/fillico-${VERSION}-linux.deb"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: Fillico-Linux
-          path: dist/Fillico-*-amd64.deb
+          path: dist/fillico-*-linux.deb
 
   # ═══════════════════════════════════════════════════════════════
   # BUILD MACOS
@@ -293,17 +293,18 @@ jobs:
 
       - name: Create DMG installer
         run: |
+          VERSION=$(echo "${{ github.ref_name }}" | sed 's/^v//')
           mkdir -p dmg-content
           cp -p dist/Fillico dmg-content/
           ln -s /Applications dmg-content/Applications
 
-          hdiutil create -volname "Fillico" -srcfolder dmg-content -ov -format UDZO "dist/Fillico-macOS.dmg"
+          hdiutil create -volname "Fillico" -srcfolder dmg-content -ov -format UDZO "dist/fillico-${VERSION}-macos.dmg"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: Fillico-macOS
-          path: dist/Fillico-macOS.dmg
+          path: dist/fillico-*-macos.dmg
 
   # ═══════════════════════════════════════════════════════════════
   # RELEASE
@@ -341,9 +342,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            artifacts/windows/Fillico-Setup.exe
-            artifacts/linux/*.deb
-            artifacts/macos/Fillico-macOS.dmg
+            artifacts/windows/fillico-*-windows.exe
+            artifacts/linux/fillico-*-linux.deb
+            artifacts/macos/fillico-*-macos.dmg
           body: |
             # 🍭 Fillico ${{ github.ref_name }}
 
@@ -351,9 +352,9 @@ jobs:
 
             ## 📦 Téléchargements
 
-            - **Windows** : `Fillico-Setup.exe` - Installateur Windows
-            - **Linux** : `Fillico-*-amd64.deb` - Paquet Debian/Ubuntu
-            - **macOS** : `Fillico-macOS.dmg` - Image disque macOS
+            - **Windows** : `fillico-${{ github.ref_name }}-windows.exe` - Installateur Windows
+            - **Linux** : `fillico-${{ github.ref_name }}-linux.deb` - Paquet Debian/Ubuntu
+            - **macOS** : `fillico-${{ github.ref_name }}-macos.dmg` - Image disque macOS
 
             ## ✨ Fonctionnalités
 
